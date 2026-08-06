@@ -37,6 +37,10 @@ export default function Dashboard() {
     loadTransactions();
   }, []);
 
+  const totalRequests = transactions.length;
+  const openRequests = transactions.filter((t) => t.type === 'expense').length;
+  const resolvedRequests = transactions.filter((t) => t.type === 'income').length;
+
   const addTransaction = async () => {
     if (!description.trim() || !amount) return;
 
@@ -68,16 +72,6 @@ export default function Dashboard() {
     }
   };
 
-  const income = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const expense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const balance = income - expense;
-
   return (
     <main className="max-w-5xl mx-auto p-8 space-y-6">
       <div>
@@ -88,11 +82,11 @@ export default function Dashboard() {
 
         <Card className="p-6">
           <h2 className="text-sm text-gray-500 mb-2">
-            Active Users
+            Total Requests
           </h2>
 
           <p className="text-3xl font-bold text-green-600">
-            124
+            {totalRequests}
           </p>
         </Card>
 
@@ -102,7 +96,7 @@ export default function Dashboard() {
           </h2>
 
           <p className="text-3xl font-bold text-red-600">
-            18
+            {openRequests}
           </p>
         </Card>
 
@@ -112,20 +106,20 @@ export default function Dashboard() {
           </h2>
 
           <p className="text-3xl font-bold">
-            87
+            {resolvedRequests}
           </p>
         </Card>
 
       </div>
 
       <Card className="p-6">
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
 
           <Input
             placeholder="Service Request"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="flex-1"
+            className="flex-1 min-w-[220px]"
           />
 
           <Input
@@ -163,13 +157,7 @@ export default function Dashboard() {
               >
                 <span>{tx.description}</span>
 
-                <span
-                  className={
-                    tx.type === "income"
-                      ? "text-green-600 font-medium"
-                      : "text-red-600 font-medium"
-                  }
-                >
+                <span className="text-muted-foreground font-medium">
                   #{tx.amount}
                 </span>
 
