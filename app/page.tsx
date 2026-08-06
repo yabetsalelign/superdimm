@@ -18,7 +18,6 @@ export default function Dashboard() {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
 
-  // Fetch transactions
   useEffect(() => {
     async function loadTransactions() {
       try {
@@ -28,11 +27,9 @@ export default function Dashboard() {
         if (Array.isArray(data)) {
           setTransactions(data);
         } else {
-          console.error('API returned:', data);
           setTransactions([]);
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
         setTransactions([]);
       }
     }
@@ -40,7 +37,6 @@ export default function Dashboard() {
     loadTransactions();
   }, []);
 
-  // Add transaction
   const addTransaction = async () => {
     if (!description.trim() || !amount) return;
 
@@ -60,7 +56,6 @@ export default function Dashboard() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error(data);
         alert(data.error ?? 'Failed to add transaction');
         return;
       }
@@ -68,22 +63,66 @@ export default function Dashboard() {
       setTransactions((prev) => [data, ...prev]);
       setAmount('');
       setDescription('');
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert('Something went wrong.');
     }
   };
 
-  return (
-    <main className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">
-        💰 SuperDimm Dashboard
-      </h1>
+  const income = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
 
-      <Card className="p-6 mb-8">
+  const expense = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const balance = income - expense;
+
+  return (
+    <main className="max-w-5xl mx-auto p-8 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">SuperDimm Admin Dashboard</h1>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+
+        <Card className="p-6">
+          <h2 className="text-sm text-gray-500 mb-2">
+            Active Users
+          </h2>
+
+          <p className="text-3xl font-bold text-green-600">
+            124
+          </p>
+        </Card>
+
+        <Card className="p-6">
+          <h2 className="text-sm text-gray-500 mb-2">
+            Open Requests
+          </h2>
+
+          <p className="text-3xl font-bold text-red-600">
+            18
+          </p>
+        </Card>
+
+        <Card className="p-6">
+          <h2 className="text-sm text-gray-500 mb-2">
+            Resolved Requests
+          </h2>
+
+          <p className="text-3xl font-bold">
+            87
+          </p>
+        </Card>
+
+      </div>
+
+      <Card className="p-6">
         <div className="flex gap-4">
+
           <Input
-            placeholder="Description"
+            placeholder="Service Request"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="flex-1"
@@ -91,29 +130,32 @@ export default function Dashboard() {
 
           <Input
             type="number"
-            placeholder="Amount"
+            placeholder="Reference ID"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             className="w-32"
           />
 
           <Button onClick={addTransaction}>
-            Add
+            Create Request
           </Button>
+
         </div>
       </Card>
 
       <Card className="p-6">
+
         <h2 className="text-xl font-semibold mb-4">
-          Recent Transactions
+          Recent Service Requests
         </h2>
 
         {transactions.length === 0 ? (
           <p className="text-gray-500">
-            No transactions yet. Add one above!
+            No service requests found.
           </p>
         ) : (
           <ul className="space-y-2">
+
             {transactions.map((tx, i) => (
               <li
                 key={tx.id ?? `tx-${i}-${tx.createdAt ?? ""}`}
@@ -123,19 +165,22 @@ export default function Dashboard() {
 
                 <span
                   className={
-                    tx.type === 'income'
-                      ? 'text-green-600'
-                      : 'text-red-600'
+                    tx.type === "income"
+                      ? "text-green-600 font-medium"
+                      : "text-red-600 font-medium"
                   }
                 >
-                  {tx.type === 'income' ? '+' : '-'}
-                  {tx.amount} birr
+                  #{tx.amount}
                 </span>
+
               </li>
             ))}
+
           </ul>
         )}
+
       </Card>
+
     </main>
   );
 }
