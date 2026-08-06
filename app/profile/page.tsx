@@ -22,12 +22,19 @@ export default function ProfilePage() {
           <CardTitle>Project Stack</CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-2">
-          <p>⚡ Next.js</p>
-          <p>🎨 Tailwind CSS</p>
-          <p>🧩 Shadcn UI</p>
-          <p>🗄️ Prisma ORM</p>
-          <p>💾 SQLite Database</p>
+        <CardContent className="space-y-3">
+          <div className="flex justify-between items-center text-sm">
+            <span>Email Notifications</span>
+            <span className="text-muted-foreground font-medium">Enabled</span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <span>Two-Factor Auth</span>
+            <span className="text-muted-foreground font-medium">Disabled</span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <span>Theme Preference</span>
+            <span className="text-muted-foreground font-medium">System</span>
+          </div>
         </CardContent>
       </Card>
     </main>
