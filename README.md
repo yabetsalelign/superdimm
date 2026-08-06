@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ethio Telecom Admin Dashboard
+
+An internal administration dashboard built with **Next.js** that helps telecom operators monitor customers, service activity, and operational data in one place.
+
+## Features
+
+* 📊 Dashboard overview with real-time system metrics
+* 👥 Customer management
+* 📋 Service request tracking
+* 💳 Payment and transaction monitoring
+* 👤 Admin profile management
+* 📈 Operational insights through dashboard statistics
 
 ## Getting Started
 
-First, run the development server:
+First, install the project dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 with your browser to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The application will automatically update as you edit files.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tech Stack
+
+* **Next.js** - React framework for full-stack web applications
+* **TypeScript** - Type-safe JavaScript development
+* **Tailwind CSS** - Utility-first styling
+* **Prisma ORM** - Database management
+* **SQLite** - Local development database
+* **shadcn/ui** - Reusable UI components
+
+## Project Structure
+
+```
+app/
+ ├── page.tsx        # Dashboard overview
+ ├── profile/        # Admin profile page
+ ├── about/          # Application information
+components/          # Reusable UI components
+prisma/              # Database schema and migrations
+```
+
+## Database
+
+The system uses Prisma to manage application data.
+
+Main entities include:
+
+* Customers
+* Service Requests
+* Transactions
+* Admin Users
+
+Dashboard statistics are generated from stored database records rather than static placeholder data.
+
+## Development
+
+To check the application:
+
+```bash
+npm run lint
+```
+
+To build the application:
+
+```bash
+npm run build
+```
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+To learn more about the technologies used:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* [Next.js Documentation](https://nextjs.org/docs)
+* [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+* [Prisma Documentation](https://www.prisma.io/docs)
+* [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+This application can be deployed using platforms that support Next.js applications, such as Vercel.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For more information, see the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
