@@ -1,174 +1,168 @@
-'use client';
-
-import { useEffect, useState } from 'react';
+﻿import Link from "next/link";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-interface Transaction {
-  id: string;
-  amount: number;
-  description: string;
-  type: string;
-  createdAt: string;
-}
+export const dynamic = "force-dynamic";
 
-export default function Dashboard() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
+export default async function Home() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    async function loadTransactions() {
-      try {
-        const res = await fetch('/api/transactions');
-        const data = await res.json();
+  if (!session?.user?.email) {
+    return (
+      <main className="mx-auto max-w-5xl p-8">
+        <section className="rounded-3xl border border-border bg-card p-8 shadow-sm">
+          <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">SuperDimm</p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight">Operations dashboard</h1>
+          <p className="mt-4 max-w-2xl text-base text-muted-foreground">
+            Sign in to view customer activity, service requests, transactions, and team operations.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild>
+              <Link href="/signin">Sign in</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/register">Register</Link>
+            </Button>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
-        if (Array.isArray(data)) {
-          setTransactions(data);
-        } else {
-          setTransactions([]);
-        }
-      } catch {
-        setTransactions([]);
-      }
-    }
+  const [customerCount, openRequests, transactionCount, totalRevenue, recentRequests, recentTransactions] = await Promise.all([
+    prisma.customer.count(),
+    prisma.serviceRequest.count({ where: { status: { not: "closed" } } }),
+    prisma.transaction.count(),
+    prisma.transaction.aggregate({ _sum: { amount: true } }),
+    prisma.serviceRequest.findMany({
+      take: 4,
+      orderBy: { updatedAt: "desc" },
+      include: { customer: true },
+    }),
+    prisma.transaction.findMany({
+      take: 4,
+      orderBy: { createdAt: "desc" },
+      include: { customer: true },
+    }),
+  ]);
 
-    loadTransactions();
-  }, []);
-
-  const totalRequests = transactions.length;
-  const openRequests = transactions.filter((t) => t.type === 'expense').length;
-  const resolvedRequests = transactions.filter((t) => t.type === 'income').length;
-
-  const addTransaction = async () => {
-    if (!description.trim() || !amount) return;
-
-    try {
-      const res = await fetch('/api/transactions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: Number(amount),
-          description: description.trim(),
-          type: 'expense',
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error ?? 'Failed to add transaction');
-        return;
-      }
-
-      setTransactions((prev) => [data, ...prev]);
-      setAmount('');
-      setDescription('');
-    } catch {
-      alert('Something went wrong.');
-    }
-  };
+  const revenue = totalRevenue._sum.amount ?? 0;
 
   return (
-    <main className="max-w-5xl mx-auto p-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">SuperDimm Admin Dashboard</h1>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-
-        <Card className="p-6">
-          <h2 className="text-sm text-gray-500 mb-2">
-            Total Requests
-          </h2>
-
-          <p className="text-3xl font-bold text-green-600">
-            {totalRequests}
-          </p>
-        </Card>
-
-        <Card className="p-6">
-          <h2 className="text-sm text-gray-500 mb-2">
-            Open Requests
-          </h2>
-
-          <p className="text-3xl font-bold text-red-600">
-            {openRequests}
-          </p>
-        </Card>
-
-        <Card className="p-6">
-          <h2 className="text-sm text-gray-500 mb-2">
-            Resolved Requests
-          </h2>
-
-          <p className="text-3xl font-bold">
-            {resolvedRequests}
-          </p>
-        </Card>
-
-      </div>
-
-      <Card className="p-6">
-        <div className="flex gap-4 flex-wrap">
-
-          <Input
-            placeholder="Service Request"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="flex-1 min-w-[220px]"
-          />
-
-          <Input
-            type="number"
-            placeholder="Reference ID"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-32"
-          />
-
-          <Button onClick={addTransaction}>
-            Create Request
-          </Button>
-
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Overview</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Operations Dashboard</h1>
         </div>
-      </Card>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/customers">Create customer</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/requests">New request</Link>
+          </Button>
+        </div>
+      </div>
 
-      <Card className="p-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Total customers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold">{customerCount}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Open service requests</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold">{openRequests}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Transactions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold">{transactionCount}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold">
+              {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(revenue)}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-        <h2 className="text-xl font-semibold mb-4">
-          Recent Service Requests
-        </h2>
-
-        {transactions.length === 0 ? (
-          <p className="text-gray-500">
-            No service requests found.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-
-            {transactions.map((tx, i) => (
-              <li
-                key={tx.id ?? `tx-${i}-${tx.createdAt ?? ""}`}
-                className="flex justify-between border-b py-2"
-              >
-                <span>{tx.description}</span>
-
-                <span className="text-muted-foreground font-medium">
-                  #{tx.amount}
-                </span>
-
-              </li>
+      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent service requests</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {recentRequests.map((request: Prisma.ServiceRequestGetPayload<{ include: { customer: true } }>) => (
+              <div key={request.id} className="flex items-center justify-between rounded-xl border border-border p-3">
+                <div>
+                  <p className="font-medium">{request.title}</p>
+                  <p className="text-sm text-muted-foreground">{request.customer.name}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm capitalize text-muted-foreground">{request.status}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(request.updatedAt).toLocaleDateString()}</p>
+                </div>
+              </div>
             ))}
+          </CardContent>
+        </Card>
 
-          </ul>
-        )}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button asChild className="w-full">
+              <Link href="/customers">Add customer</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/requests">Create service request</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/transactions">Review transactions</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent activity</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {recentTransactions.map((transaction: Prisma.TransactionGetPayload<{ include: { customer: true } }>) => (
+            <div key={transaction.id} className="flex items-center justify-between rounded-xl border border-border p-3">
+              <div>
+                <p className="font-medium">{transaction.description}</p>
+                <p className="text-sm text-muted-foreground">{transaction.customer?.name ?? "Customer"}</p>
+              </div>
+              <p className={transaction.type === "income" ? "text-emerald-600" : "text-red-600"}>
+                {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(transaction.amount)}
+              </p>
+            </div>
+          ))}
+        </CardContent>
       </Card>
-
-    </main>
+    </div>
   );
 }
