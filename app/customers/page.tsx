@@ -1,10 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import type { Customer } from "@prisma/client";
 import { requireRole } from "@/lib/rbac";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CustomerForm } from "@/components/customer-form";
+import { CustomersTable } from "@/components/customers-table";
 
 export const dynamic = "force-dynamic";
 
@@ -26,56 +24,20 @@ export default async function CustomersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">Operations</p>
+          <p className="text-sm text-muted-foreground">Customer management</p>
           <h1 className="text-3xl font-semibold">Customers</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Manage customer records, contact details, and status.</p>
         </div>
-        <Button variant="outline">Export</Button>
+        <div className="text-sm text-muted-foreground">Total: {customers.length}</div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Customer roster</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {customers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-muted-foreground">
-                      No customers found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  customers.map((customer: Customer) => (
-                    <TableRow key={customer.id}>
-                      <TableCell className="font-medium">{customer.name}</TableCell>
-                      <TableCell>{customer.email ?? "—"}</TableCell>
-                      <TableCell>{customer.phone ?? "—"}</TableCell>
-                      <TableCell>
-                        <span className="rounded-full border border-border px-2 py-0.5 text-xs capitalize">
-                          {customer.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>{new Date(customer.createdAt).toLocaleDateString()}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div>
+          {/* customers table (client-side search + table) */}
+          <CustomersTable customers={customers} />
+        </div>
 
         <Card>
           <CardHeader>

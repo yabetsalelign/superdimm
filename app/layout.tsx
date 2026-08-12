@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AdminShell } from "@/components/admin-shell";
+import { MaybeAdminShell } from "@/components/maybe-admin-shell";
 import { Providers } from "@/app/providers";
 import "./globals.css";
 
@@ -31,7 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-background text-foreground">
         <Providers>
-          <AdminShell>{children}</AdminShell>
+          <MaybeAdminShell>{children}</MaybeAdminShell>
         </Providers>
       </body>
     </html>
