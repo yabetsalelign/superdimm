@@ -122,6 +122,37 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  /* Ensure form controls are visually distinct in their default state.
+     Many components accidentally used bg-background on inputs, which matched the page
+     and made controls visually invisible until focused. Provide accessible
+     defaults and patch cases where bg-background was used on form elements.
+  */
+  input,
+  textarea,
+  select,
+  button {
+    @apply bg-input text-foreground border border-border placeholder:text-muted-foreground;
+  }
+
+  /* If a form control was given the bg-background utility (page background),
+     treat that specially so inputs remain on the input surface color instead
+     of blending into the page. This preserves existing class usage while
+     fixing the visibility issue globally. */
+  input.bg-background,
+  textarea.bg-background,
+  select.bg-background {
+    background-color: var(--input);
+  }
+
+  /* Placeholder color should be readable */
+  input::placeholder,
+  textarea::placeholder,
+  select::placeholder {
+    color: var(--muted-foreground);
+    opacity: 1;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
