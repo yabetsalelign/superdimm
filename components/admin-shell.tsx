@@ -98,7 +98,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
               <div className="flex items-center gap-3">
                 <Card className="hidden items-center gap-2 px-3 py-2 sm:flex">
-                  <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">User</span>
                   <span className="text-sm font-medium">{session?.user?.name ?? session?.user?.email ?? "Guest"}</span>
                 </Card>
                 <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/signin" })}>
