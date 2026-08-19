@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -34,14 +35,20 @@ export default function SignInPage() {
       return;
     }
 
-    router.push("/");
+    const session = await getSession();
+    const role = (session?.user as { role?: string } | undefined)?.role ?? "user";
+    router.push(role === "user" ? "/portal" : "/dashboard");
   }
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
+    <main className="min-h-screen bg-muted/20 px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-md">
+        <Link href="/" className="text-lg font-semibold tracking-tight">SuperDimm</Link>
       <Card>
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
+          <p className="text-sm uppercase tracking-[0.2em] text-primary">Customer Service Operations</p>
+          <CardTitle className="text-2xl">Sign in to your workspace</CardTitle>
+          <p className="text-sm text-muted-foreground">Manage customer cases, service requests, and support workflows.</p>
         </CardHeader>
         <CardContent className="space-y-6">
           <form className="space-y-4" onSubmit={handleSubmit}>
@@ -75,6 +82,7 @@ export default function SignInPage() {
           </p>
         </CardContent>
       </Card>
+      </div>
     </main>
   );
 }

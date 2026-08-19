@@ -5,6 +5,7 @@ import type { Customer } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 
 export function CustomersTable({ customers }: { customers: Customer[] }) {
   const [query, setQuery] = useState("");
@@ -42,7 +43,7 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
           ) : (
             filtered.map((customer) => (
               <TableRow key={customer.id}>
-                <TableCell className="font-medium">{customer.name}</TableCell>
+                <TableCell className="font-medium"><Link href={`/customers/${customer.id}`} className="text-primary hover:underline">{customer.name}</Link></TableCell>
                 <TableCell>{customer.email ?? "—"}</TableCell>
                 <TableCell>{customer.phone ?? "—"}</TableCell>
                 <TableCell>

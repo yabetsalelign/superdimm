@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/rbac";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RequestForm } from "@/components/request-form";
 import { RequestsTable } from "@/components/requests-table";
+import { CollapsibleFormPanel } from "@/components/collapsible-form-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -28,28 +29,25 @@ export default async function RequestsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">Service request management</p>
-          <h1 className="text-3xl font-semibold">Service Requests</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Monitor and triage incoming service requests.</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Customer service operations</p>
+          <h1 className="text-3xl font-semibold">Customer Cases</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Triage complaints, assign work, and move customer issues toward resolution.</p>
         </div>
-        <div className="text-sm text-muted-foreground">Total: {requests.length}</div>
+        <div className="flex flex-col items-end gap-2 text-sm text-muted-foreground">
+          <div>Total: {requests.length}</div>
+          <CollapsibleFormPanel label="Log a Case">
+            <Card>
+              <CardHeader><CardTitle>Log a case</CardTitle></CardHeader>
+              <CardContent><RequestForm /></CardContent>
+            </Card>
+          </CollapsibleFormPanel>
+        </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div>
-          <RequestsTable requests={requests} />
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Create request</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RequestForm />
-          </CardContent>
-        </Card>
+      <div>
+        <RequestsTable requests={requests} />
       </div>
     </div>
   );

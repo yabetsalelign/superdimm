@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/rbac";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TransactionForm } from "@/components/transaction-form";
 import { TransactionsTable } from "@/components/transactions-table";
+import { CollapsibleFormPanel } from "@/components/collapsible-form-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -38,28 +39,25 @@ export default async function TransactionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Financial operations</p>
           <h1 className="text-3xl font-semibold">Transactions</h1>
           <p className="mt-1 text-sm text-muted-foreground">Ledger view for operational transactions.</p>
         </div>
-        <div className="text-sm text-muted-foreground">Total: {transactions.length}</div>
+        <div className="flex flex-col items-end gap-2 text-sm text-muted-foreground">
+          <div>Total: {transactions.length}</div>
+          <CollapsibleFormPanel label="Add Transaction">
+            <Card>
+              <CardHeader><CardTitle>Add transaction</CardTitle></CardHeader>
+              <CardContent><TransactionForm /></CardContent>
+            </Card>
+          </CollapsibleFormPanel>
+        </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div>
-          <TransactionsTable transactions={transactions} />
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Add transaction</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TransactionForm />
-          </CardContent>
-        </Card>
+      <div>
+        <TransactionsTable transactions={transactions} />
       </div>
     </div>
   );

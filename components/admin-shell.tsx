@@ -9,9 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Home, Users, FileText, CreditCard, UserCheck, BarChart2, Settings } from "lucide-react";
 
 const navigation = [
-  { href: "/", label: "Dashboard", icon: Home },
+  { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/customers", label: "Customers", icon: Users },
-  { href: "/requests", label: "Service Requests", icon: FileText },
+  { href: "/requests", label: "Cases", icon: FileText },
   { href: "/transactions", label: "Transactions", icon: CreditCard },
   { href: "/users", label: "Users", icon: UserCheck },
   { href: "/analytics", label: "Analytics", icon: BarChart2 },
