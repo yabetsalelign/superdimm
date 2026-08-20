@@ -1,31 +1,55 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { casePriorities, caseStatuses } from "@/lib/case-utils";
+import { caseCategories, casePriorities, caseStatuses } from "@/lib/case-utils";
 import { requireRole } from "@/lib/rbac";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await requireRole(["admin", "manager", "support"]);
+    await requireRole(["admin", "manager", "support"]);
     const { id } = await params;
     const body = await request.json();
-    const status = String(body?.status ?? "");
-    const priority = String(body?.priority ?? "");
-    const assignedUserId = body?.assignedUserId ? String(body.assignedUserId) : null;
 
-    if (!caseStatuses.includes(status as (typeof caseStatuses)[number])) {
-      return NextResponse.json({ error: "Invalid case status." }, { status: 400 });
+    const dataToUpdate: {
+      status?: string;
+      priority?: string;
+      category?: string;
+      assignedUserId?: string | null;
+    } = {};
+
+    if (body?.status !== undefined) {
+      const status = String(body.status);
+      if (!caseStatuses.includes(status as (typeof caseStatuses)[number])) {
+        return NextResponse.json({ error: "Invalid case status." }, { status: 400 });
+      }
+      dataToUpdate.status = status;
     }
-    if (!casePriorities.includes(priority as (typeof casePriorities)[number])) {
-      return NextResponse.json({ error: "Invalid case priority." }, { status: 400 });
+
+    if (body?.priority !== undefined) {
+      const priority = String(body.priority);
+      if (!casePriorities.includes(priority as (typeof casePriorities)[number])) {
+        return NextResponse.json({ error: "Invalid case priority." }, { status: 400 });
+      }
+      dataToUpdate.priority = priority;
+    }
+
+    if (body?.category !== undefined) {
+      const category = String(body.category);
+      if (!caseCategories.includes(category as (typeof caseCategories)[number])) {
+        return NextResponse.json({ error: "Invalid case category." }, { status: 400 });
+      }
+      dataToUpdate.category = category;
+    }
+
+    if (body?.assignedUserId !== undefined) {
+      dataToUpdate.assignedUserId = body.assignedUserId ? String(body.assignedUserId) : null;
     }
 
     const item = await prisma.serviceRequest.update({
       where: { id },
-      data: {
-        status,
-        priority,
-        assignedUserId,
-        createdByUserId: (session.user as { id?: string } | undefined)?.id ?? undefined,
+      data: dataToUpdate,
+      include: {
+        customer: true,
+        assignedUser: { select: { id: true, name: true, email: true } },
       },
     });
 

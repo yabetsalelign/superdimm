@@ -11,6 +11,7 @@ export function CustomerForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [plan, setPlan] = useState("Managed Enterprise Fiber (100M)");
   const [status, setStatus] = useState("active");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -23,7 +24,7 @@ export function CustomerForm() {
     const response = await fetch("/api/customers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone, status }),
+      body: JSON.stringify({ name, email, phone, plan, status }),
     });
 
     setPending(false);
@@ -37,40 +38,85 @@ export function CustomerForm() {
     setName("");
     setEmail("");
     setPhone("");
+    setPlan("Managed Enterprise Fiber (100M)");
     setStatus("active");
     router.refresh();
   }
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
-      <div className="grid gap-2">
-        <Label htmlFor="customer-name">Customer name</Label>
-        <Input id="customer-name" value={name} onChange={(event) => setName(event.target.value)} required />
+      <div className="grid gap-1.5">
+        <Label htmlFor="customer-name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Subscriber / Organization Name
+        </Label>
+        <Input
+          id="customer-name"
+          placeholder="e.g. Acme Logistics"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          required
+        />
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor="customer-email">Email</Label>
-        <Input id="customer-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+
+      <div className="grid gap-1.5">
+        <Label htmlFor="customer-plan" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Telecom Service Plan
+        </Label>
+        <Input
+          id="customer-plan"
+          placeholder="e.g. Managed Enterprise Fiber (100M)"
+          value={plan}
+          onChange={(event) => setPlan(event.target.value)}
+        />
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor="customer-phone">Phone</Label>
-        <Input id="customer-phone" value={phone} onChange={(event) => setPhone(event.target.value)} />
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-1.5">
+          <Label htmlFor="customer-email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Contact Email
+          </Label>
+          <Input
+            id="customer-email"
+            type="email"
+            placeholder="ops@acme.logistics"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="customer-phone" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Contact Phone
+          </Label>
+          <Input
+            id="customer-phone"
+            placeholder="+1 555 0101"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+          />
+        </div>
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor="customer-status">Status</Label>
+
+      <div className="grid gap-1.5">
+        <Label htmlFor="customer-status" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Account Status
+        </Label>
         <select
           id="customer-status"
           value={status}
           onChange={(event) => setStatus(event.target.value)}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
         >
           <option value="active">Active</option>
-          <option value="pending">Pending</option>
-          <option value="inactive">Inactive</option>
+          <option value="pending">Pending Activation</option>
+          <option value="inactive">Suspended / Inactive</option>
         </select>
       </div>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? "Creating..." : "Create customer"}
+
+      {error ? <p className="text-xs font-medium text-destructive">{error}</p> : null}
+
+      <Button type="submit" disabled={pending} className="w-full font-medium">
+        {pending ? "Creating Customer..." : "Create Customer Account"}
       </Button>
     </form>
   );

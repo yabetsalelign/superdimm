@@ -7,47 +7,112 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { formatCaseLabel, getCaseCategory, getCaseReference } from "@/lib/case-utils";
+import {
+  caseCategories,
+  casePriorities,
+  caseStatuses,
+  formatCaseLabel,
+  formatCategoryLabel,
+  getCaseReference,
+} from "@/lib/case-utils";
 
 type RequestWithIncludes = Prisma.ServiceRequestGetPayload<{ include: { customer: true; assignedUser: { select: { name: true } } } }>;
+
+function getStatusBadgeVariant(status: string) {
+  if (status === "closed" || status === "resolved") return "success" as const;
+  if (status === "open") return "accent" as const;
+  if (status === "escalated") return "danger" as const;
+  return "warning" as const;
+}
+
+function getPriorityBadgeVariant(priority: string) {
+  if (priority === "critical" || priority === "high") return "danger" as const;
+  if (priority === "low") return "muted" as const;
+  return "default" as const;
+}
 
 export function RequestsTable({ requests }: { requests: RequestWithIncludes[] }) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return requests.filter((r) => {
       if (statusFilter !== "all" && r.status !== statusFilter) return false;
       if (priorityFilter !== "all" && r.priority !== priorityFilter) return false;
+      if (categoryFilter !== "all" && (r.category ?? "network") !== categoryFilter) return false;
       if (!q) return true;
-      return (r.title ?? "").toLowerCase().includes(q) || (r.customer?.name ?? "").toLowerCase().includes(q);
+      return (
+        (r.title ?? "").toLowerCase().includes(q) ||
+        (r.customer?.name ?? "").toLowerCase().includes(q) ||
+        getCaseReference(r.id).toLowerCase().includes(q)
+      );
     });
-  }, [requests, query, statusFilter, priorityFilter]);
+  }, [requests, query, statusFilter, priorityFilter, categoryFilter]);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <Input className="min-w-0 flex-1" placeholder="Search cases by issue or customer" value={query} onChange={(e) => setQuery((e.target as HTMLInputElement).value)} />
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <select className="rounded-md border border-border bg-background px-2 py-1 text-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="all">All statuses</option>
-            <option value="open">Open</option><option value="assigned">Assigned</option><option value="in_progress">In progress</option><option value="pending_customer">Pending customer</option><option value="escalated">Escalated</option><option value="resolved">Resolved</option><option value="closed">Closed</option>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <Input
+          className="min-w-0 flex-1"
+          placeholder="Search cases by subject, customer, or reference (e.g. SR-...)"
+          value={query}
+          onChange={(e) => setQuery((e.target as HTMLInputElement).value)}
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="all">All Categories</option>
+            {caseCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {formatCategoryLabel(cat)}
+              </option>
+            ))}
           </select>
-          <select className="rounded-md border border-border bg-background px-2 py-1 text-sm" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
-            <option value="all">All priorities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+
+          <select
+            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All Statuses</option>
+            {caseStatuses.map((st) => (
+              <option key={st} value={st}>
+                {formatCaseLabel(st)}
+              </option>
+            ))}
           </select>
-          <div className="whitespace-nowrap text-sm text-muted-foreground">{filtered.length} / {requests.length}</div>
+
+          <select
+            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium"
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+          >
+            <option value="all">All Priorities</option>
+            {casePriorities.map((pr) => (
+              <option key={pr} value={pr}>
+                {formatCaseLabel(pr)}
+              </option>
+            ))}
+          </select>
+
+          <div className="whitespace-nowrap text-xs text-muted-foreground pl-1">
+            {filtered.length} / {requests.length} cases
+          </div>
         </div>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Case</TableHead>
+            <TableHead>Case Ref</TableHead>
             <TableHead>Customer</TableHead>
-            <TableHead>Issue</TableHead>
+            <TableHead>Problem Subject</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Priority</TableHead>
@@ -58,25 +123,43 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
         <TableBody>
           {filtered.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-muted-foreground">
-                No customer cases found.
+              <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+                No customer cases match the selected search or filters.
               </TableCell>
             </TableRow>
           ) : (
             filtered.map((r) => (
               <TableRow key={r.id}>
-                <TableCell><Link href={`/requests/${r.id}`} className="font-medium text-primary hover:underline">{getCaseReference(r.id)}</Link></TableCell>
-                <TableCell className="font-medium">{r.customer?.name ?? "—"}</TableCell>
-                <TableCell className="font-medium">{r.title}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{getCaseCategory(r.title, r.description)}</TableCell>
                 <TableCell>
-                <Badge variant={r.status === "closed" || r.status === "resolved" ? "success" : r.status === "open" ? "accent" : "warning"}>{formatCaseLabel(r.status)}</Badge>
+                  <Link href={`/requests/${r.id}`} className="font-mono text-xs font-bold text-primary hover:underline">
+                    {getCaseReference(r.id)}
+                  </Link>
+                </TableCell>
+                <TableCell className="font-medium">
+                  <Link href={`/customers/${r.customer.id}`} className="hover:underline">
+                    {r.customer?.name ?? "—"}
+                  </Link>
+                </TableCell>
+                <TableCell className="font-medium text-foreground">
+                  <Link href={`/requests/${r.id}`} className="hover:underline">
+                    {r.title}
+                  </Link>
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {formatCategoryLabel(r.category)}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={r.priority === "critical" || r.priority === "high" ? "danger" : r.priority === "low" ? "muted" : "default"}>{formatCaseLabel(r.priority)}</Badge>
+                  <Badge variant={getStatusBadgeVariant(r.status)}>
+                    {formatCaseLabel(r.status)}
+                  </Badge>
                 </TableCell>
-              <TableCell className="text-sm text-muted-foreground">{r.assignedUser?.name ?? "Unassigned"}</TableCell>
-              <TableCell className="text-sm text-muted-foreground">{new Date(r.updatedAt).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  <Badge variant={getPriorityBadgeVariant(r.priority)}>
+                    {formatCaseLabel(r.priority)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">{r.assignedUser?.name ?? "Unassigned"}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">{new Date(r.updatedAt).toLocaleDateString()}</TableCell>
               </TableRow>
             ))
           )}

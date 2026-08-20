@@ -4,68 +4,185 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { casePriorities, caseStatuses, formatCaseLabel } from "@/lib/case-utils";
+import {
+  caseCategories,
+  casePriorities,
+  caseStatuses,
+  formatCaseLabel,
+  formatCategoryLabel,
+} from "@/lib/case-utils";
 
 type CaseActionsProps = {
   requestId: string;
   status: string;
   priority: string;
+  category?: string;
   assignedUserId: string | null;
   users: Array<{ id: string; name: string | null; email: string }>;
 };
 
-export function CaseActions({ requestId, status, priority, assignedUserId, users }: CaseActionsProps) {
+export function CaseActions({
+  requestId,
+  status,
+  priority,
+  category = "network",
+  assignedUserId,
+  users,
+}: CaseActionsProps) {
   const router = useRouter();
   const [nextStatus, setNextStatus] = useState(status);
   const [nextPriority, setNextPriority] = useState(priority);
+  const [nextCategory, setNextCategory] = useState(category);
   const [nextAssignee, setNextAssignee] = useState(assignedUserId ?? "");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [pending, setPending] = useState(false);
 
-  async function saveChanges() {
+  async function executeUpdate(customStatus?: string) {
     setPending(true);
-    setMessage("");
-    const response = await fetch(`/api/requests/${requestId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: nextStatus, priority: nextPriority, assignedUserId: nextAssignee || null }),
-    });
-    setPending(false);
-    if (!response.ok) {
-      setMessage("The case could not be updated.");
-      return;
+    setMessage(null);
+    const targetStatus = customStatus ?? nextStatus;
+
+    try {
+      const response = await fetch(`/api/requests/${requestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: targetStatus,
+          priority: nextPriority,
+          category: nextCategory,
+          assignedUserId: nextAssignee || null,
+        }),
+      });
+
+      setPending(false);
+
+      if (!response.ok) {
+        setMessage({ type: "error", text: "The case could not be updated." });
+        return;
+      }
+
+      if (customStatus) {
+        setNextStatus(customStatus);
+      }
+      setMessage({ type: "success", text: "Case updated successfully." });
+      router.refresh();
+    } catch {
+      setPending(false);
+      setMessage({ type: "error", text: "Network error occurred." });
     }
-    setMessage("Case updated.");
-    router.refresh();
   }
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="grid gap-2">
-          <Label htmlFor="case-status">Status</Label>
-          <select id="case-status" value={nextStatus} onChange={(event) => setNextStatus(event.target.value)} className="rounded-md border border-border bg-input px-3 py-2 text-sm">
-            {caseStatuses.map((item) => <option key={item} value={item}>{formatCaseLabel(item)}</option>)}
+      <div className="space-y-3">
+        <div className="grid gap-1.5">
+          <Label htmlFor="case-status" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Lifecycle Status
+          </Label>
+          <select
+            id="case-status"
+            value={nextStatus}
+            onChange={(e) => setNextStatus(e.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            {caseStatuses.map((item) => (
+              <option key={item} value={item}>
+                {formatCaseLabel(item)}
+              </option>
+            ))}
           </select>
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="case-priority">Priority</Label>
-          <select id="case-priority" value={nextPriority} onChange={(event) => setNextPriority(event.target.value)} className="rounded-md border border-border bg-input px-3 py-2 text-sm">
-            {casePriorities.map((item) => <option key={item} value={item}>{formatCaseLabel(item)}</option>)}
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="case-priority" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Priority Level
+          </Label>
+          <select
+            id="case-priority"
+            value={nextPriority}
+            onChange={(e) => setNextPriority(e.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            {casePriorities.map((item) => (
+              <option key={item} value={item}>
+                {formatCaseLabel(item)} Priority
+              </option>
+            ))}
           </select>
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="case-assignee">Assigned agent</Label>
-          <select id="case-assignee" value={nextAssignee} onChange={(event) => setNextAssignee(event.target.value)} className="rounded-md border border-border bg-input px-3 py-2 text-sm">
-            <option value="">Unassigned</option>
-            {users.map((user) => <option key={user.id} value={user.id}>{user.name ?? user.email}</option>)}
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="case-category" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Case Category
+          </Label>
+          <select
+            id="case-category"
+            value={nextCategory}
+            onChange={(e) => setNextCategory(e.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            {caseCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {formatCategoryLabel(cat)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label htmlFor="case-assignee" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Assigned Agent
+          </Label>
+          <select
+            id="case-assignee"
+            value={nextAssignee}
+            onChange={(e) => setNextAssignee(e.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="">— Unassigned (Queue) —</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name ?? user.email}
+              </option>
+            ))}
           </select>
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        <Button type="button" onClick={saveChanges} disabled={pending}>{pending ? "Saving..." : "Save case changes"}</Button>
-        {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
+
+      <div className="pt-1 space-y-2">
+        <Button
+          type="button"
+          className="w-full font-medium"
+          onClick={() => executeUpdate()}
+          disabled={pending}
+        >
+          {pending ? "Saving..." : "Save Case Changes"}
+        </Button>
+
+        {nextStatus !== "resolved" && nextStatus !== "closed" ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+            onClick={() => executeUpdate("resolved")}
+            disabled={pending}
+          >
+            ✓ Mark as Resolved
+          </Button>
+        ) : null}
       </div>
+
+      {message ? (
+        <div
+          className={`rounded-lg px-3 py-2 text-xs font-medium ${
+            message.type === "success"
+              ? "border border-emerald-200 bg-emerald-50 text-emerald-800"
+              : "border border-red-200 bg-red-50 text-red-800"
+          }`}
+        >
+          {message.text}
+        </div>
+      ) : null}
     </div>
   );
 }

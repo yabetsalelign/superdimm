@@ -17,11 +17,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await requireRole(["admin", "manager"]);
+    await requireRole(["admin", "manager", "support"]);
     const body = await request.json();
     const name = String(body?.name ?? "").trim();
     const email = String(body?.email ?? "").trim();
     const phone = String(body?.phone ?? "").trim();
+    const plan = String(body?.plan ?? "").trim();
     const status = String(body?.status ?? "active");
 
     if (!name) {
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
         name,
         email: email || null,
         phone: phone || null,
+        plan: plan || "Standard Telecom Service",
         status,
         userId: (session.user as { id?: string } | undefined)?.id ?? null,
       },
