@@ -29,7 +29,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <Input placeholder="Search cases by issue or customer" value={query} onChange={(e) => setQuery((e.target as HTMLInputElement).value)} />
+        <Input className="min-w-0 flex-1" placeholder="Search cases by issue or customer" value={query} onChange={(e) => setQuery((e.target as HTMLInputElement).value)} />
         <div className="flex flex-wrap items-center justify-end gap-2">
           <select className="rounded-md border border-border bg-background px-2 py-1 text-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
             <option value="all">All statuses</option>
@@ -38,7 +38,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
           <select className="rounded-md border border-border bg-background px-2 py-1 text-sm" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
             <option value="all">All priorities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
           </select>
-          <div className="text-sm text-muted-foreground">{filtered.length} / {requests.length}</div>
+          <div className="whitespace-nowrap text-sm text-muted-foreground">{filtered.length} / {requests.length}</div>
         </div>
       </div>
 

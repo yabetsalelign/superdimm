@@ -19,8 +19,8 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <Input placeholder="Search customers by name, email or phone" value={query} onChange={(e) => setQuery((e.target as HTMLInputElement).value)} />
-        <div className="text-sm text-muted-foreground">{filtered.length} / {customers.length}</div>
+        <Input className="min-w-0 flex-1" placeholder="Search customers by name, email or phone" value={query} onChange={(e) => setQuery((e.target as HTMLInputElement).value)} />
+        <div className="whitespace-nowrap text-sm text-muted-foreground">{filtered.length} / {customers.length}</div>
       </div>
 
       <Table>

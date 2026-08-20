@@ -41,16 +41,16 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="min-h-screen bg-muted/20 px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-md">
-        <Link href="/" className="text-lg font-semibold tracking-tight">SuperDimm</Link>
-      <Card>
-        <CardHeader>
-          <p className="text-sm uppercase tracking-[0.2em] text-primary">Customer Service Operations</p>
-          <CardTitle className="text-2xl">Sign in to your workspace</CardTitle>
-          <p className="text-sm text-muted-foreground">Manage customer cases, service requests, and support workflows.</p>
-        </CardHeader>
-        <CardContent className="space-y-6">
+    <main className="flex min-h-screen items-center justify-center bg-muted/20 px-4 py-10 sm:px-6">
+      <div className="w-full max-w-lg space-y-5">
+        <Link href="/" className="block text-center text-lg font-semibold tracking-tight">SuperDimm</Link>
+        <Card className="shadow-sm">
+          <CardHeader className="space-y-3 p-6 sm:p-8">
+            <p className="text-sm uppercase tracking-[0.2em] text-primary">Customer Service Operations</p>
+            <CardTitle className="text-2xl sm:text-3xl">Sign in to your workspace</CardTitle>
+            <p className="text-sm leading-6 text-muted-foreground">Manage customer cases, service requests, and support workflows.</p>
+          </CardHeader>
+          <CardContent className="space-y-6 p-6 pt-0 sm:p-8 sm:pt-0">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -81,7 +81,7 @@ export default function SignInPage() {
             Need an account? <Link href="/register" className="text-primary underline">Register</Link>
           </p>
         </CardContent>
-      </Card>
+        </Card>
       </div>
     </main>
   );

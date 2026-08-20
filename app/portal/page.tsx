@@ -32,13 +32,14 @@ export default function PortalPage() {
       <header className="flex flex-col gap-5 border-b border-border pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.25em] text-primary">Customer Portal</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Welcome back, {sampleCustomer.name}</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">See what is happening with your service and submit a complaint or request when you need help.</p>
-        </div>
-        <div className="shrink-0">
-          <CustomerRequestPrototype />
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Welcome to your service portal</h1>
+          <p className="mt-2 max-w-2xl text-muted-foreground">Manage your telecom service, report problems, and track your support requests.</p>
         </div>
       </header>
+
+      <section className="flex justify-end" aria-label="Report a problem">
+        <CustomerRequestPrototype />
+      </section>
 
       <section aria-labelledby="account-summary-heading" className="space-y-4">
         <div>
@@ -68,7 +69,7 @@ export default function PortalPage() {
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Card>
           <CardHeader>
-            <CardTitle>My open cases</CardTitle>
+            <CardTitle>My support requests</CardTitle>
             <CardDescription>Track complaints and service issues submitted for your account.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -108,7 +109,7 @@ export default function PortalPage() {
         </Card>
       </div>
 
-      <p className="text-center text-xs text-muted-foreground">Sample customer view for product review. Activity shown here is prototype data.</p>
+      <p className="text-center text-xs text-muted-foreground">Prototype customer view for product review. The account and request history shown here is sample data.</p>
     </main>
   );
 }

@@ -21,8 +21,8 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <Input placeholder="Search by description or customer" value={query} onChange={(e) => setQuery((e.target as HTMLInputElement).value)} />
-        <div className="text-sm text-muted-foreground">{filtered.length} / {transactions.length}</div>
+        <Input className="min-w-0 flex-1" placeholder="Search by description or customer" value={query} onChange={(e) => setQuery((e.target as HTMLInputElement).value)} />
+        <div className="whitespace-nowrap text-sm text-muted-foreground">{filtered.length} / {transactions.length}</div>
       </div>
 
       <Table>

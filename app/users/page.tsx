@@ -26,6 +26,7 @@ export default async function UsersPage() {
       <div>
         <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">Administration</p>
         <h1 className="text-3xl font-semibold">Users</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Manage access for the people supporting customer operations.</p>
       </div>
 
       <Card>
@@ -47,7 +48,11 @@ export default async function UsersPage() {
                 <TableRow key={user.id}>
                   <TableCell>{user.name ?? "—"}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell className="capitalize">{user.role}</TableCell>
+                  <TableCell>
+                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${user.role === "admin" ? "border-purple-200 bg-purple-50 text-purple-700" : user.role === "manager" ? "border-indigo-200 bg-indigo-50 text-indigo-700" : user.role === "support" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-slate-200 bg-slate-100 text-slate-600"}`}>
+                      {user.role}
+                    </span>
+                  </TableCell>
                   <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}

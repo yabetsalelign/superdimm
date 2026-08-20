@@ -18,17 +18,10 @@ const navigation = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-function getPageTitle(pathname: string) {
-  const match = navigation.find((item) => item.href === pathname);
-  return match?.label ?? "Overview";
-}
-
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const title = getPageTitle(pathname);
-
   return (
     <div className="min-h-screen bg-muted/20 text-foreground">
       <div className="flex min-h-screen">
@@ -90,10 +83,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 >
                   Menu
                 </Button>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{title === 'Dashboard' ? 'Overview' : title}</p>
-                  <h2 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h2>
-                </div>
+                <div className="sr-only">Portal navigation</div>
               </div>
 
               <div className="flex items-center gap-3">
