@@ -31,39 +31,8 @@ export default function SignInPage() {
       return;
     }
 
-    try {
-      const sessionRes = await fetch("/api/auth/session");
-      const session = sessionRes.ok ? await sessionRes.json() : null;
-      const role = session?.user?.role ?? "user";
-
-      const searchParams = new URLSearchParams(window.location.search);
-      const rawCallbackUrl = searchParams.get("callbackUrl");
-
-      let destination = "/portal";
-
-      if (role === "user") {
-        // Customer accounts ALWAYS go to /portal (preventing redirection to internal CRM)
-        if (rawCallbackUrl && rawCallbackUrl.startsWith("/portal") && !rawCallbackUrl.startsWith("/portal/../")) {
-          destination = rawCallbackUrl;
-        } else {
-          destination = "/portal";
-        }
-      } else {
-        // Staff roles: admin, manager, support
-        const isSafeInternalPath =
-          rawCallbackUrl &&
-          rawCallbackUrl.startsWith("/") &&
-          !rawCallbackUrl.startsWith("//") &&
-          !rawCallbackUrl.startsWith("/signin") &&
-          !rawCallbackUrl.startsWith("/register");
-
-        destination = isSafeInternalPath ? rawCallbackUrl : "/dashboard";
-      }
-
-      window.location.href = destination;
-    } catch {
-      window.location.href = "/portal";
-    }
+    // Customer Portal sign-in ALWAYS and unconditionally navigates to /portal
+    window.location.href = "/portal";
   }
 
   return (
