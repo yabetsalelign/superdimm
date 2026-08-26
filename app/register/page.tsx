@@ -41,52 +41,60 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Create an account</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-            </div>
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? "Creating account..." : "Create account"}
-            </Button>
-          </form>
-          <p className="text-sm text-muted-foreground">
-            Already have an account? <Link href="/signin" className="text-primary underline">Sign in</Link>
-          </p>
-        </CardContent>
-      </Card>
+    <main className="flex min-h-screen items-center justify-center bg-muted/20 px-4 py-10 sm:px-6">
+      <div className="w-full max-w-lg space-y-5">
+        <Link href="/" className="block text-center text-lg font-semibold tracking-tight">SuperDimm</Link>
+        <Card className="shadow-sm">
+          <CardHeader className="space-y-3 p-6 sm:p-8">
+            <p className="text-sm uppercase tracking-[0.2em] text-primary">Customer Service Operations</p>
+            <CardTitle className="text-2xl sm:text-3xl">Create an account</CardTitle>
+            <p className="text-sm leading-6 text-muted-foreground">Register to access subscriber tools, report issues, and manage plans.</p>
+          </CardHeader>
+          <CardContent className="space-y-6 p-6 pt-0 sm:p-8 sm:pt-0">
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Your full name"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="name@example.com"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              {error ? <p className="text-sm text-destructive">{error}</p> : null}
+              <Button type="submit" disabled={isLoading} className="w-full">
+                {isLoading ? "Creating account..." : "Create account"}
+              </Button>
+            </form>
+            <p className="text-sm text-muted-foreground">
+              Already have an account? <Link href="/signin" className="text-primary underline">Sign in</Link>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </main>
   );
 }

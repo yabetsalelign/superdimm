@@ -7,14 +7,19 @@ import { AdminShell } from "@/components/admin-shell";
 export function MaybeAdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Paths that should use the standalone auth layout (no AdminShell)
-  const standalonePaths = ["/", "/signin", "/register", "/portal"];
+  // Check if current path is a standalone page (landing, auth, or customer portal)
+  const isStandalone =
+    pathname === "/" ||
+    pathname === "/signin" ||
+    pathname === "/register" ||
+    pathname?.startsWith("/portal");
 
-  // If the current path is an auth route, render children directly
-  if (standalonePaths.includes(pathname ?? "")) {
+  // If the current path is standalone, render children directly
+  if (isStandalone) {
     return <>{children}</>;
   }
 
   // Otherwise use the AdminShell as before
   return <AdminShell>{children}</AdminShell>;
 }
+

@@ -105,7 +105,7 @@ export function CustomerForm() {
           id="customer-status"
           value={status}
           onChange={(event) => setStatus(event.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-slate-50/80 transition-colors"
         >
           <option value="active">Active</option>
           <option value="pending">Pending Activation</option>

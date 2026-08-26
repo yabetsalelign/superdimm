@@ -1,37 +1,75 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function CustomerRequestPrototype() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [reference, setReference] = useState<string | null>(null);
+  
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("network");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setReference("SR-10482");
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description, category }),
+      });
+
+      if (!response.ok) {
+        const body = await response.json();
+        throw new Error(body.error || "Unable to submit support ticket.");
+      }
+
+      const item = await response.json();
+      const ref = `SR-${item.id.slice(-5).toUpperCase()}`;
+      setReference(ref);
+      
+      // Clear fields
+      setTitle("");
+      setDescription("");
+      setCategory("network");
+      
+      // Refresh the portal list page
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message || "A network error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (reference) {
     return (
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
-        <p className="font-medium text-emerald-900">
-          Request submitted successfully
+        <p className="font-semibold text-emerald-950 text-sm">
+          Ticket Submitted Successfully
         </p>
 
-        <p className="mt-1 text-sm text-emerald-800">
-          Your reference number is{" "}
-          <strong>{reference}</strong>. Our support team will review the
-          problem and update its status.
+        <p className="mt-2 text-xs leading-relaxed text-emerald-800">
+          Your support reference number is{" "}
+          <strong className="font-mono text-sm bg-emerald-100 px-1 py-0.5 rounded text-emerald-950">{reference}</strong>.
+          Our operations team has queued the issue and will begin working on it shortly.
         </p>
 
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="mt-4 border-emerald-300 bg-white text-emerald-900 hover:bg-emerald-100"
+          className="mt-4 border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100"
           onClick={() => {
             setReference(null);
             setIsOpen(false);
@@ -49,7 +87,7 @@ export function CustomerRequestPrototype() {
       {!isOpen && (
         <Button
           type="button"
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto font-medium"
           onClick={() => setIsOpen(true)}
         >
           Report a problem
@@ -58,16 +96,16 @@ export function CustomerRequestPrototype() {
 
       {/* Report a Problem Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in fade-in-0 zoom-in-95 duration-150">
             {/* Modal header */}
-            <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+            <div className="flex items-start justify-between border-b border-border/60 pb-4">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-lg font-bold text-foreground">
                   Report a problem
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Tell us what is happening with your telecom service.
                 </p>
               </div>
@@ -75,7 +113,7 @@ export function CustomerRequestPrototype() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="ml-4 text-sm font-semibold text-slate-400 transition-colors hover:text-slate-600"
+                className="ml-4 text-sm font-semibold text-muted-foreground cursor-pointer transition-colors hover:text-foreground"
                 aria-label="Close"
               >
                 ✕
@@ -92,15 +130,16 @@ export function CustomerRequestPrototype() {
                 <select
                   id="portal-request-category"
                   name="category"
-                  defaultValue="network"
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full rounded-md border border-border bg-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
-                  <option value="network">Network / Internet</option>
-                  <option value="billing">Billing</option>
-                  <option value="sim">SIM / Mobile</option>
-                  <option value="account">Account access</option>
-                  <option value="plan">Plan or package</option>
-                  <option value="other">Other</option>
+                  <option value="network">Network / Internet connection</option>
+                  <option value="billing">Billing & Invoices</option>
+                  <option value="sim">SIM / Mobile service</option>
+                  <option value="account">Account access & Login</option>
+                  <option value="plan">Plan or package subscription</option>
+                  <option value="other">Other issues</option>
                 </select>
               </div>
 
@@ -112,7 +151,9 @@ export function CustomerRequestPrototype() {
                 <Input
                   id="portal-request-title"
                   name="title"
-                  placeholder="For example, home internet disconnected"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="For example, fiber internet disconnected"
                   required
                 />
               </div>
@@ -126,23 +167,30 @@ export function CustomerRequestPrototype() {
                   id="portal-request-details"
                   name="description"
                   rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   placeholder="Tell us what is happening and how we can help."
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
+              {error ? (
+                <p className="text-xs text-destructive font-medium">{error}</p>
+              ) : null}
+
               {/* Modal footer */}
-              <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+              <div className="flex items-center justify-end gap-3 border-t border-border/60 pt-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsOpen(false)}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
 
-                <Button type="submit">
-                  Submit complaint
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Submitting..." : "Submit ticket"}
                 </Button>
               </div>
             </form>

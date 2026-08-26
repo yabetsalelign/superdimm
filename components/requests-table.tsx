@@ -63,7 +63,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
         />
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium"
+            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium cursor-pointer hover:bg-slate-50/80 transition-colors"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
@@ -76,7 +76,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
           </select>
 
           <select
-            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium"
+            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium cursor-pointer hover:bg-slate-50/80 transition-colors"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -89,7 +89,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
           </select>
 
           <select
-            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium"
+            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium cursor-pointer hover:bg-slate-50/80 transition-colors"
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
           >

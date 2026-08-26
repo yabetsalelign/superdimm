@@ -1,4 +1,4 @@
-﻿import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -10,47 +10,64 @@ export default async function ProfilePage() {
 
   if (!sessionUser?.email) {
     return (
-      <main className="max-w-3xl mx-auto p-8 space-y-4">
-        <h1 className="text-4xl font-bold">Profile</h1>
-        <p className="text-muted-foreground">Please sign in to view your profile.</p>
-      </main>
+      <div className="rounded-xl border border-border bg-card p-6">
+        <h1 className="text-2xl font-semibold">Access Restricted</h1>
+        <p className="mt-2 text-muted-foreground">Please sign in to view your profile.</p>
+      </div>
     );
   }
 
   return (
-    <main className="max-w-3xl mx-auto p-8 space-y-6">
-      <h1 className="text-4xl font-bold">👤 Profile</h1>
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">User settings</p>
+        <h1 className="text-3xl font-semibold">Profile</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Manage your credentials, preferences, and notification status.</p>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>User Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <p><strong>Name:</strong> {sessionUser?.name || "—"}</p>
-          <p><strong>Email:</strong> {sessionUser?.email}</p>
-          <p><strong>Role:</strong> {sessionUser?.role || "user"}</p>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>User Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-sm border-b border-border/60 pb-2.5">
+                <span className="font-medium text-muted-foreground">Name</span>
+                <span className="font-semibold text-foreground">{sessionUser?.name || "—"}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm border-b border-border/60 pb-2.5">
+                <span className="font-medium text-muted-foreground">Email Address</span>
+                <span className="font-semibold text-foreground">{sessionUser?.email}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm pb-1">
+                <span className="font-medium text-muted-foreground">Operational Role</span>
+                <span className="font-semibold text-foreground capitalize">{sessionUser?.role || "user"}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Project stack</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex justify-between items-center text-sm">
-            <span>Email Notifications</span>
-            <span className="text-muted-foreground font-medium">Enabled</span>
-          </div>
-          <div className="flex justify-between items-center text-sm">
-            <span>Two-Factor Auth</span>
-            <span className="text-muted-foreground font-medium">Disabled</span>
-          </div>
-          <div className="flex justify-between items-center text-sm">
-            <span>Theme Preference</span>
-            <span className="text-muted-foreground font-medium">System</span>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
+        <Card>
+          <CardHeader>
+            <CardTitle>Preferences</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex justify-between items-center text-sm border-b border-border/60 pb-2.5">
+              <span>Email Notifications</span>
+              <span className="text-muted-foreground font-medium">Enabled</span>
+            </div>
+            <div className="flex justify-between items-center text-sm border-b border-border/60 pb-2.5">
+              <span>Two-Factor Auth</span>
+              <span className="text-muted-foreground font-medium">Disabled</span>
+            </div>
+            <div className="flex justify-between items-center text-sm pb-1">
+              <span>Theme Preference</span>
+              <span className="text-muted-foreground font-medium">System</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

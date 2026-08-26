@@ -83,7 +83,7 @@ export function CaseActions({
             id="case-status"
             value={nextStatus}
             onChange={(e) => setNextStatus(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-slate-50/80 transition-colors"
           >
             {caseStatuses.map((item) => (
               <option key={item} value={item}>
@@ -101,7 +101,7 @@ export function CaseActions({
             id="case-priority"
             value={nextPriority}
             onChange={(e) => setNextPriority(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-slate-50/80 transition-colors"
           >
             {casePriorities.map((item) => (
               <option key={item} value={item}>
@@ -119,7 +119,7 @@ export function CaseActions({
             id="case-category"
             value={nextCategory}
             onChange={(e) => setNextCategory(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-slate-50/80 transition-colors"
           >
             {caseCategories.map((cat) => (
               <option key={cat} value={cat}>
@@ -137,7 +137,7 @@ export function CaseActions({
             id="case-assignee"
             value={nextAssignee}
             onChange={(e) => setNextAssignee(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer hover:bg-slate-50/80 transition-colors"
           >
             <option value="">— Unassigned (Queue) —</option>
             {users.map((user) => (

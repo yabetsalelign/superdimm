@@ -95,7 +95,7 @@ export function RequestForm({ initialCustomerId, onSuccess }: RequestFormProps) 
             id="request-customer"
             value={customerId}
             onChange={(event) => setCustomerId(event.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-slate-50/80 transition-colors"
             required
           >
             {customers.length === 0 ? (
@@ -132,7 +132,7 @@ export function RequestForm({ initialCustomerId, onSuccess }: RequestFormProps) 
           id="request-category"
           value={category}
           onChange={(event) => setCategory(event.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-slate-50/80 transition-colors"
         >
           {caseCategories.map((cat) => (
             <option key={cat} value={cat}>
@@ -165,7 +165,7 @@ export function RequestForm({ initialCustomerId, onSuccess }: RequestFormProps) 
             id="request-priority"
             value={priority}
             onChange={(event) => setPriority(event.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-slate-50/80 transition-colors"
           >
             {casePriorities.map((item) => (
               <option key={item} value={item}>
@@ -183,7 +183,7 @@ export function RequestForm({ initialCustomerId, onSuccess }: RequestFormProps) 
             id="request-status"
             value={status}
             onChange={(event) => setStatus(event.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-slate-50/80 transition-colors"
           >
             {caseStatuses.map((item) => (
               <option key={item} value={item}>

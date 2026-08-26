@@ -94,7 +94,7 @@ export function TransactionForm({ initialCustomerId, onSuccess }: TransactionFor
             id="txn-customer"
             value={customerId}
             onChange={(e) => setCustomerId(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-slate-50/80 transition-colors"
           >
             {customers.length === 0 ? (
               <option value="">Loading accounts...</option>
@@ -146,7 +146,7 @@ export function TransactionForm({ initialCustomerId, onSuccess }: TransactionFor
             id="type"
             value={type}
             onChange={(event) => setType(event.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm cursor-pointer hover:bg-slate-50/80 transition-colors"
           >
             <option value="subscription">Monthly Subscription</option>
             <option value="payment">Account Payment</option>

@@ -23,26 +23,32 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
-    <div className="min-h-screen bg-muted/20 text-foreground">
+    <div className="min-h-screen bg-slate-50 text-foreground">
       <div className="flex min-h-screen">
+        {/* Sidebar */}
         <aside
           className={
             (sidebarOpen ? "translate-x-0" : "-translate-x-full") +
-            " fixed inset-y-0 left-0 z-40 w-72 border-r border-sidebar-border bg-sidebar p-4 shadow-sm transition-transform lg:static lg:translate-x-0"
+            " fixed inset-y-0 left-0 z-40 w-64 border-r border-border bg-card p-4 transition-transform lg:static lg:translate-x-0"
           }
         >
           <div className="flex h-full flex-col">
-            <div className="mb-8 flex items-center justify-between gap-3 px-2">
-              <div>
-                <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">SuperDimm</p>
-                <h1 className="text-lg font-semibold text-foreground">Operations</h1>
+            {/* Sidebar Logo */}
+            <div className="mb-6 flex items-center justify-between gap-3 px-2">
+              <div className="flex items-center gap-2">
+                <span className="h-6 w-6 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shrink-0">S</span>
+                <div className="min-w-0">
+                  <span className="text-sm font-bold tracking-tight text-foreground block truncate">SuperDimm</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground block -mt-1 font-semibold">Operations CRM</span>
+                </div>
               </div>
-              <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
-                Close
+              <Button variant="ghost" size="icon-sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+                ✕
               </Button>
             </div>
 
-            <nav className="space-y-2">
+            {/* Navigation links */}
+            <nav className="space-y-1.5">
               {navigation.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon as React.ComponentType<React.SVGProps<SVGSVGElement> & { className?: string }>;
@@ -52,27 +58,39 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
                     className={
-                      "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors " +
-                      (isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted/70 hover:text-foreground")
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors " +
+                      (isActive 
+                        ? "bg-primary text-primary-foreground shadow-sm" 
+                        : "text-muted-foreground hover:bg-slate-100 hover:text-foreground")
                     }
                   >
-                    <Icon className={"h-4 w-4 " + (isActive ? "text-primary" : "text-muted-foreground")} />
+                    <Icon className={"h-4 w-4 shrink-0 " + (isActive ? "text-primary-foreground" : "text-muted-foreground")} />
                     <span>{item.label}</span>
                   </Link>
                 );
               })}
             </nav>
 
-            <div className="mt-auto rounded-2xl border border-border bg-card p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Signed in</p>
-              <p className="mt-2 font-medium">{session?.user?.name ?? session?.user?.email ?? "User"}</p>
-              <p className="text-sm text-muted-foreground">{session?.user?.role ?? "user"}</p>
+            {/* User Profile Block */}
+            <div className="mt-auto rounded-lg border border-border bg-slate-50/50 p-3 flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                {(session?.user?.name ?? session?.user?.email ?? "U")[0]}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-xs text-foreground truncate">
+                  {session?.user?.name ?? session?.user?.email?.split('@')[0] ?? "Operations Staff"}
+                </p>
+                <p className="text-[10px] text-muted-foreground capitalize font-medium">
+                  {session?.user?.role ?? "agent"}
+                </p>
+              </div>
             </div>
           </div>
         </aside>
 
-        <div className="flex-1"> 
-          <header className="sticky top-0 z-20 border-b border-border bg-background/90 px-4 py-4 backdrop-blur-sm sm:px-6">
+        {/* Main Area */}
+        <div className="flex-1 min-w-0"> 
+          <header className="sticky top-0 z-20 border-b border-border bg-card px-4 py-3 sm:px-6">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Button
@@ -87,9 +105,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               </div>
 
               <div className="flex items-center gap-3">
-                <Card className="hidden items-center gap-2 px-3 py-2 sm:flex">
-                  <span className="text-sm font-medium">{session?.user?.name ?? session?.user?.email ?? "Guest"}</span>
-                </Card>
+                <div className="hidden items-center gap-2 px-3 py-1.5 text-xs font-medium bg-slate-50 border border-border rounded-lg sm:flex">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>CRM Session Active</span>
+                </div>
                 <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/signin" })}>
                   Sign out
                 </Button>
