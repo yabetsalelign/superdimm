@@ -53,20 +53,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Problem title is required." }, { status: 400 });
     }
 
-    // Role-based customer ID isolation
+    // Role-based customer ID resolution and validation
     if (role === "user") {
       const customer = await getCustomerForSession(session);
       if (!customer) {
         return NextResponse.json({ error: "Customer profile not found." }, { status: 404 });
       }
-      targetCustomerId = customer.id; // Enforce user's own customer ID
+      targetCustomerId = customer.id; // Enforce user's own customer ID; ignore any external customerId
     } else {
-      if (!targetCustomerId) {
-        return NextResponse.json({ error: "Customer is required." }, { status: 400 });
-      }
-      const customer = await prisma.customer.findUnique({ where: { id: targetCustomerId } });
-      if (!customer) {
-        return NextResponse.json({ error: "Customer not found." }, { status: 404 });
+      // Staff roles: admin, manager, support
+      if (targetCustomerId) {
+        // Internal CRM flow: explicit customer selection
+        const customer = await prisma.customer.findUnique({ where: { id: targetCustomerId } });
+        if (!customer) {
+          return NextResponse.json({ error: "Customer not found." }, { status: 404 });
+        }
+      } else {
+        // Staff accessing customer portal: resolve established customer context
+        const customer = await getCustomerForSession(session);
+        if (!customer) {
+          return NextResponse.json({ error: "A customer context is required to create a service request." }, { status: 400 });
+        }
+        targetCustomerId = customer.id;
       }
     }
 

@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { getSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SignInPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -28,16 +25,45 @@ export default function SignInPage() {
       password,
     });
 
-    setIsLoading(false);
-
     if (!result?.ok) {
+      setIsLoading(false);
       setError(result?.error ?? "Invalid email or password.");
       return;
     }
 
-    const session = await getSession();
-    const role = (session?.user as { role?: string } | undefined)?.role ?? "user";
-    router.push(role === "user" ? "/portal" : "/dashboard");
+    try {
+      const sessionRes = await fetch("/api/auth/session");
+      const session = sessionRes.ok ? await sessionRes.json() : null;
+      const role = session?.user?.role ?? "user";
+
+      const searchParams = new URLSearchParams(window.location.search);
+      const rawCallbackUrl = searchParams.get("callbackUrl");
+
+      let destination = "/portal";
+
+      if (role === "user") {
+        // Customer accounts ALWAYS go to /portal (preventing redirection to internal CRM)
+        if (rawCallbackUrl && rawCallbackUrl.startsWith("/portal") && !rawCallbackUrl.startsWith("/portal/../")) {
+          destination = rawCallbackUrl;
+        } else {
+          destination = "/portal";
+        }
+      } else {
+        // Staff roles: admin, manager, support
+        const isSafeInternalPath =
+          rawCallbackUrl &&
+          rawCallbackUrl.startsWith("/") &&
+          !rawCallbackUrl.startsWith("//") &&
+          !rawCallbackUrl.startsWith("/signin") &&
+          !rawCallbackUrl.startsWith("/register");
+
+        destination = isSafeInternalPath ? rawCallbackUrl : "/dashboard";
+      }
+
+      window.location.href = destination;
+    } catch {
+      window.location.href = "/portal";
+    }
   }
 
   return (
