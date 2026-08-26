@@ -12,7 +12,7 @@ export default async function ProfilePage() {
   } catch (err) {
     const e = err as { code?: string };
     if (e?.code === "FORBIDDEN") redirect("/portal");
-    redirect("/signin");
+    redirect("/operations/login");
   }
 
   const session = await getServerSession(authOptions);

@@ -46,7 +46,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
   } catch (err) {
     const e = err as { code?: string };
     if (e?.code === "FORBIDDEN") redirect("/portal");
-    redirect("/signin");
+    redirect("/operations/login");
   }
 
   const { id } = await params;

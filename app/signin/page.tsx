@@ -72,9 +72,9 @@ export default function SignInPage() {
         <Link href="/" className="block text-center text-lg font-semibold tracking-tight">SuperDimm</Link>
         <Card className="shadow-sm">
           <CardHeader className="space-y-3 p-6 sm:p-8">
-            <p className="text-sm uppercase tracking-[0.2em] text-primary">Customer Service Operations</p>
-            <CardTitle className="text-2xl sm:text-3xl">Sign in to your workspace</CardTitle>
-            <p className="text-sm leading-6 text-muted-foreground">Manage customer cases, service requests, and support workflows.</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-primary font-semibold">Subscriber Access</p>
+            <CardTitle className="text-2xl sm:text-3xl">Sign in to Customer Portal</CardTitle>
+            <p className="text-sm leading-6 text-muted-foreground">Manage your telecom subscription, view billing activity, and submit service requests.</p>
           </CardHeader>
           <CardContent className="space-y-6 p-6 pt-0 sm:p-8 sm:pt-0">
           <form className="space-y-4" onSubmit={handleSubmit}>

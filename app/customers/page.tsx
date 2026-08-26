@@ -13,7 +13,7 @@ export default async function CustomersPage() {
   } catch (err) {
     const e = err as { code?: string };
     if (e?.code === "FORBIDDEN") redirect("/portal");
-    redirect("/signin");
+    redirect("/operations/login");
   }
 
   const customers = await prisma.customer.findMany({

@@ -13,7 +13,7 @@ export default async function DashboardPage() {
     if (e?.code === "FORBIDDEN") {
       redirect("/portal");
     }
-    redirect("/signin");
+    redirect("/operations/login");
   }
 
   const requests = await prisma.serviceRequest.findMany({ take: 30, orderBy: { updatedAt: "desc" }, include: { customer: true } });

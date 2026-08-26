@@ -109,7 +109,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>CRM Session Active</span>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/signin" })}>
+                <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/operations/login" })}>
                   Sign out
                 </Button>
               </div>
