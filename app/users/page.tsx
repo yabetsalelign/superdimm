@@ -1,5 +1,6 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireRole } from "@/lib/rbac";
+import { requireStaff } from "@/lib/rbac";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -7,14 +8,11 @@ export const dynamic = "force-dynamic";
 
 export default async function UsersPage() {
   try {
-    await requireRole(["admin"]);
-  } catch {
-    return (
-      <div className="rounded-xl border border-border bg-card p-6">
-        <h1 className="text-2xl font-semibold">Users</h1>
-        <p className="mt-2 text-muted-foreground">Only administrators can access user management.</p>
-      </div>
-    );
+    await requireStaff(["admin"]);
+  } catch (err) {
+    const e = err as { code?: string };
+    if (e?.code === "FORBIDDEN") redirect("/portal");
+    redirect("/signin");
   }
 
   const users = await prisma.user.findMany({

@@ -1,6 +1,18 @@
+import { redirect } from "next/navigation";
+import { requireStaff } from "@/lib/rbac";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function SettingsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function SettingsPage() {
+  try {
+    await requireStaff(["admin", "manager", "support"]);
+  } catch (err) {
+    const e = err as { code?: string };
+    if (e?.code === "FORBIDDEN") redirect("/portal");
+    redirect("/signin");
+  }
+
   return (
     <div className="space-y-6">
       <div>

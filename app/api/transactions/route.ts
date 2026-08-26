@@ -1,16 +1,16 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireRole, requireUser } from "@/lib/rbac";
+import { requireRole } from "@/lib/rbac";
 
 export async function GET() {
   try {
-    const session = await requireUser();
-    const role = (session.user as { role?: string } | undefined)?.role ?? "user";
-    const currentUserId = (session.user as { id?: string } | undefined)?.id;
+    const session = await requireRole(["admin", "manager", "support"]);
+    const role = (session.user as { role?: string } | undefined)?.role ?? "support";
 
-    const where = role === "admin" || role === "manager"
-      ? {}
-      : { userId: currentUserId ?? "" };
+    // admin/manager see all; support sees their own userId-linked entries
+    const currentUserId = (session.user as { id?: string } | undefined)?.id;
+    const where =
+      role === "admin" || role === "manager" ? {} : { userId: currentUserId ?? "" };
 
     const transactions = await prisma.transaction.findMany({
       where,
@@ -22,13 +22,13 @@ export async function GET() {
     });
     return NextResponse.json(transactions);
   } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const session = await requireRole(["admin", "manager", "support", "user"]);
+    const session = await requireRole(["admin", "manager", "support"]);
     const body = await request.json();
     const currentUserId = (session.user as { id?: string } | undefined)?.id;
 
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(transaction, { status: 201 });
   } catch {
-    return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 }
+

@@ -94,3 +94,30 @@ export async function checkOwnership(resourceUserId: string | null | undefined) 
   return !!resourceUserId && currentUserId === resourceUserId;
 }
 
+/**
+ * Returns true if the given role is an internal staff role.
+ * Customers have role "user" and must not access internal CRM routes.
+ */
+export function isStaffRole(role: string | undefined | null): boolean {
+  return role === "admin" || role === "manager" || role === "support";
+}
+
+/**
+ * Requires an authenticated staff session (admin | manager | support).
+ * - Throws { code: "UNAUTHENTICATED" } if no session exists.
+ * - Throws { code: "FORBIDDEN" } if authenticated but not staff (i.e. a customer).
+ * Call sites can catch and redirect appropriately.
+ */
+export async function requireStaff(roles: AppRole[] = ["admin", "manager", "support"]) {
+  let session;
+  try {
+    session = await requireUser();
+  } catch {
+    throw { code: "UNAUTHENTICATED" };
+  }
+  const role = (session.user as { role?: AppRole } | undefined)?.role ?? "user";
+  if (!roles.includes(role)) {
+    throw { code: "FORBIDDEN" };
+  }
+  return session;
+}

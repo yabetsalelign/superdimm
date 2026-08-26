@@ -1,7 +1,8 @@
-﻿import { getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { requireRole } from "@/lib/rbac";
+import { requireStaff } from "@/lib/rbac";
 import { TransactionForm } from "@/components/transaction-form";
 import { TransactionsTable } from "@/components/transactions-table";
 import { CollapsibleFormPanel } from "@/components/collapsible-form-panel";
@@ -10,14 +11,11 @@ export const dynamic = "force-dynamic";
 
 export default async function TransactionsPage() {
   try {
-    await requireRole(["admin", "manager", "support", "user"]);
-  } catch {
-    return (
-      <div className="rounded-xl border border-border bg-card p-6">
-        <h1 className="text-2xl font-semibold">Transactions</h1>
-        <p className="mt-2 text-muted-foreground">You do not have access to this section.</p>
-      </div>
-    );
+    await requireStaff(["admin", "manager", "support"]);
+  } catch (err) {
+    const e = err as { code?: string };
+    if (e?.code === "FORBIDDEN") redirect("/portal");
+    redirect("/signin");
   }
 
   const session = await getServerSession(authOptions);
@@ -25,10 +23,7 @@ export default async function TransactionsPage() {
   const currentRole = (session?.user as { role?: string } | undefined)?.role ?? "user";
 
   const transactions = await prisma.transaction.findMany({
-    where:
-      currentRole === "admin" || currentRole === "manager"
-        ? {}
-        : { userId: currentUserId ?? "" },
+    where: currentRole === "admin" || currentRole === "manager" ? {} : { userId: currentUserId ?? "" },
     include: {
       customer: true,
       user: { select: { name: true, email: true } },

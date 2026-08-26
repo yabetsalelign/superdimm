@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireRole } from "@/lib/rbac";
+import { requireStaff } from "@/lib/rbac";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,14 +42,11 @@ function formatTransactionType(type: string) {
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireRole(["admin", "manager", "support"]);
-  } catch {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-8">
-        <h1 className="text-2xl font-semibold">Access Restricted</h1>
-        <p className="mt-2 text-muted-foreground">You do not have access to view customer profiles.</p>
-      </div>
-    );
+    await requireStaff(["admin", "manager", "support"]);
+  } catch (err) {
+    const e = err as { code?: string };
+    if (e?.code === "FORBIDDEN") redirect("/portal");
+    redirect("/signin");
   }
 
   const { id } = await params;

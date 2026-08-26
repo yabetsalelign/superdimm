@@ -1,5 +1,6 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireRole } from "@/lib/rbac";
+import { requireStaff } from "@/lib/rbac";
 import { CustomerForm } from "@/components/customer-form";
 import { CustomersTable } from "@/components/customers-table";
 import { CollapsibleFormPanel } from "@/components/collapsible-form-panel";
@@ -8,14 +9,11 @@ export const dynamic = "force-dynamic";
 
 export default async function CustomersPage() {
   try {
-    await requireRole(["admin", "manager", "support"]);
-  } catch {
-    return (
-      <div className="rounded-xl border border-border bg-card p-6">
-        <h1 className="text-2xl font-semibold">Customers</h1>
-        <p className="mt-2 text-muted-foreground">You do not have access to this section.</p>
-      </div>
-    );
+    await requireStaff(["admin", "manager", "support"]);
+  } catch (err) {
+    const e = err as { code?: string };
+    if (e?.code === "FORBIDDEN") redirect("/portal");
+    redirect("/signin");
   }
 
   const customers = await prisma.customer.findMany({

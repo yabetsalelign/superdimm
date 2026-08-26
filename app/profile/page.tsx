@@ -1,21 +1,22 @@
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { requireStaff } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function ProfilePage() {
+  try {
+    await requireStaff(["admin", "manager", "support"]);
+  } catch (err) {
+    const e = err as { code?: string };
+    if (e?.code === "FORBIDDEN") redirect("/portal");
+    redirect("/signin");
+  }
+
   const session = await getServerSession(authOptions);
   const sessionUser = session?.user as { name?: string; email?: string; role?: string } | undefined;
-
-  if (!sessionUser?.email) {
-    return (
-      <div className="rounded-xl border border-border bg-card p-6">
-        <h1 className="text-2xl font-semibold">Access Restricted</h1>
-        <p className="mt-2 text-muted-foreground">Please sign in to view your profile.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 max-w-4xl">
