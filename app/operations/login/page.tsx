@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -95,13 +96,12 @@ export default function OperationsLoginPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="staff-password" className="text-slate-300 text-xs font-semibold">Password</Label>
-                <Input
+                <PasswordInput
                   id="staff-password"
-                  type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="••••••••"
-                  className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400 focus-visible:border-primary"
+                  className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400 focus-visible:border-primary [&+button]:text-slate-300 [&+button]:hover:text-white"
                   required
                 />
               </div>

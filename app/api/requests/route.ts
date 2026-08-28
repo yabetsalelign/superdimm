@@ -52,6 +52,9 @@ export async function POST(request: Request) {
     if (!title) {
       return NextResponse.json({ error: "Problem title is required." }, { status: 400 });
     }
+    if (/previous\s+issue|not\s+fixed|still\s+(not\s+)?working/i.test(title) && !description) {
+      return NextResponse.json({ error: "Please include details so the team can investigate this follow-up issue." }, { status: 400 });
+    }
 
     // Role-based customer ID resolution and validation
     if (role === "user") {

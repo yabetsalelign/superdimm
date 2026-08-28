@@ -16,6 +16,7 @@ export function CustomerRequestPrototype() {
   const [category, setCategory] = useState("network");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isFollowUp = /previous\s+issue|not\s+fixed|still\s+(not\s+)?working/i.test(title);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -160,7 +161,7 @@ export function CustomerRequestPrototype() {
 
               <div className="grid gap-2">
                 <Label htmlFor="portal-request-details">
-                  More details
+                  More details {isFollowUp ? <span className="text-destructive">(required for a follow-up)</span> : null}
                 </Label>
 
                 <textarea
@@ -170,6 +171,7 @@ export function CustomerRequestPrototype() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Tell us what is happening and how we can help."
+                  required={isFollowUp}
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>

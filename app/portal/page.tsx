@@ -5,9 +5,11 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getCustomerForSession } from "@/lib/rbac";
+import { isStaffRole } from "@/lib/rbac";
 import { getCaseReference, formatCaseLabel } from "@/lib/case-utils";
 import { LandingActions } from "@/components/landing-actions";
 import Link from "next/link";
+import { CopyReference } from "@/components/copy-reference";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +49,9 @@ export default async function PortalPage() {
   const session = await getServerSession(authOptions);
   if (!session) {
     redirect("/signin");
+  }
+  if (isStaffRole((session.user as { role?: string }).role)) {
+    redirect("/dashboard");
   }
 
   const customer = await getCustomerForSession(session);
@@ -111,7 +116,7 @@ export default async function PortalPage() {
           </Card>
           <Card>
             <CardHeader className="min-w-0 pb-2"><CardDescription className="text-xs">Account ID Reference</CardDescription><CardTitle className="truncate font-mono text-xl text-primary" title={customer.id}>{customer.id}</CardTitle></CardHeader>
-            <CardContent><p className="text-xs text-muted-foreground">Quote this in communications</p></CardContent>
+            <CardContent className="flex items-center justify-between gap-2"><p className="text-xs text-muted-foreground">Quote this in communications</p><CopyReference value={customer.id} label="Copy account ID" /></CardContent>
           </Card>
           <Card>
             <CardHeader className="min-w-0 pb-2"><CardDescription className="text-xs">Primary Contact Email</CardDescription><CardTitle className="truncate text-lg" title={customer.email ?? undefined}>{customer.email || "No email registered"}</CardTitle></CardHeader>

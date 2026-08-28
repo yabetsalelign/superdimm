@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { verifyCustomerOwnership } from "@/lib/rbac";
+import { isStaffRole } from "@/lib/rbac";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,6 +64,9 @@ export default async function CustomerCaseDetailPage({ params }: { params: Promi
   const session = await getServerSession(authOptions);
   if (!session) {
     redirect("/signin");
+  }
+  if (isStaffRole((session.user as { role?: string }).role)) {
+    redirect("/dashboard");
   }
 
   const { id } = await params;

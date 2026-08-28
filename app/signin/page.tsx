@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -31,8 +32,11 @@ export default function SignInPage() {
       return;
     }
 
-    // Customer Portal sign-in ALWAYS and unconditionally navigates to /portal
-    window.location.href = "/portal";
+    // Keep the customer entry point isolated: staff accounts return to Operations.
+    const sessionResponse = await fetch("/api/auth/session");
+    const session = sessionResponse.ok ? await sessionResponse.json() : null;
+    const role = session?.user?.role ?? "user";
+    window.location.href = ["admin", "manager", "support"].includes(role) ? "/dashboard" : "/portal";
   }
 
   return (
@@ -60,9 +64,8 @@ export default function SignInPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
