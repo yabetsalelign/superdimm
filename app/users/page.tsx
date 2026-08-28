@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireStaff } from "@/lib/rbac";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -24,12 +25,12 @@ export default async function UsersPage() {
       <div>
         <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">Administration</p>
         <h1 className="text-3xl font-semibold">Users</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage access for the people supporting customer operations.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Read-only directory of people authorized to support customer operations.</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>User access</CardTitle>
+          <CardTitle>Staff account audit</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -44,12 +45,10 @@ export default async function UsersPage() {
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>{user.name ?? "—"}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  <TableCell className="font-medium">{user.name ?? "—"}</TableCell>
+                  <TableCell className="max-w-72 text-muted-foreground"><span className="block truncate" title={user.email}>{user.email}</span></TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${user.role === "admin" ? "border-purple-200 bg-purple-50 text-purple-700" : user.role === "manager" ? "border-indigo-200 bg-indigo-50 text-indigo-700" : user.role === "support" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-slate-200 bg-slate-100 text-slate-600"}`}>
-                      {user.role}
-                    </span>
+                    <Badge variant={user.role === "admin" ? "accent" : user.role === "manager" ? "success" : user.role === "support" ? "warning" : "muted"}>{user.role}</Badge>
                   </TableCell>
                   <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                 </TableRow>

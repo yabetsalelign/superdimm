@@ -43,10 +43,10 @@ export default function RegisterPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/20 px-4 py-10 sm:px-6">
       <div className="w-full max-w-lg space-y-5">
-        <Link href="/" className="block text-center text-lg font-semibold tracking-tight">SuperDimm</Link>
-        <Card className="shadow-sm">
+        <Link href="/" className="flex items-center justify-center gap-2 text-center text-xl font-bold tracking-tight text-foreground"><span className="flex size-7 items-center justify-center rounded-md bg-primary text-sm text-primary-foreground">S</span>SuperDimm</Link>
+        <Card className="border-border/80 shadow-sm">
           <CardHeader className="space-y-3 p-6 sm:p-8">
-            <p className="text-sm uppercase tracking-[0.2em] text-primary">Customer Service Operations</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Subscriber Access</p>
             <CardTitle className="text-2xl sm:text-3xl">Create an account</CardTitle>
             <p className="text-sm leading-6 text-muted-foreground">Register to access subscriber tools, report issues, and manage plans.</p>
           </CardHeader>
@@ -90,7 +90,7 @@ export default function RegisterPage() {
               </Button>
             </form>
             <p className="text-sm text-muted-foreground">
-              Already have an account? <Link href="/signin" className="text-primary underline">Sign in</Link>
+              Already have an account? <Link href="/signin" className="font-medium text-primary underline underline-offset-4">Sign in</Link>
             </p>
           </CardContent>
         </Card>

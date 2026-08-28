@@ -71,7 +71,7 @@ export default async function PortalPage() {
           <Link href="/portal" className="text-xl font-bold tracking-tight text-foreground">SuperDimm Portal</Link>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-xs text-muted-foreground hidden sm:inline">
+          <span className="hidden max-w-80 truncate text-xs text-muted-foreground sm:inline" title={`${session.user?.email ?? ""} (ID: ${customer.id})`}>
             Logged in as <strong>{session.user?.email}</strong> (ID: <span className="font-mono text-primary font-semibold">{customer.id}</span>)
           </span>
           <LandingActions />
@@ -110,11 +110,11 @@ export default async function PortalPage() {
             <CardContent><p className="text-xs text-muted-foreground">100% Service Level Agreement (SLA)</p></CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><CardDescription className="text-xs">Account ID Reference</CardDescription><CardTitle className="text-xl font-mono text-primary">{customer.id}</CardTitle></CardHeader>
+            <CardHeader className="min-w-0 pb-2"><CardDescription className="text-xs">Account ID Reference</CardDescription><CardTitle className="truncate font-mono text-xl text-primary" title={customer.id}>{customer.id}</CardTitle></CardHeader>
             <CardContent><p className="text-xs text-muted-foreground">Quote this in communications</p></CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><CardDescription className="text-xs">Primary Contact Email</CardDescription><CardTitle className="text-lg break-all">{customer.email || "No email registered"}</CardTitle></CardHeader>
+            <CardHeader className="min-w-0 pb-2"><CardDescription className="text-xs">Primary Contact Email</CardDescription><CardTitle className="truncate text-lg" title={customer.email ?? undefined}>{customer.email || "No email registered"}</CardTitle></CardHeader>
             <CardContent><p className="text-xs text-muted-foreground">Notifications target this address</p></CardContent>
           </Card>
         </div>

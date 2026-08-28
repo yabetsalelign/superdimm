@@ -38,8 +38,8 @@ export default function SignInPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/20 px-4 py-10 sm:px-6">
       <div className="w-full max-w-lg space-y-5">
-        <Link href="/" className="block text-center text-lg font-semibold tracking-tight">SuperDimm</Link>
-        <Card className="shadow-sm">
+        <Link href="/" className="flex items-center justify-center gap-2 text-center text-xl font-bold tracking-tight text-foreground"><span className="flex size-7 items-center justify-center rounded-md bg-primary text-sm text-primary-foreground">S</span>SuperDimm</Link>
+        <Card className="border-border/80 shadow-sm">
           <CardHeader className="space-y-3 p-6 sm:p-8">
             <p className="text-sm uppercase tracking-[0.2em] text-primary font-semibold">Subscriber Access</p>
             <CardTitle className="text-2xl sm:text-3xl">Sign in to Customer Portal</CardTitle>
@@ -55,6 +55,7 @@ export default function SignInPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
+                placeholder="name@example.com"
               />
             </div>
             <div className="grid gap-2">
@@ -65,6 +66,7 @@ export default function SignInPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
+                placeholder="••••••••"
               />
             </div>
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
@@ -73,7 +75,7 @@ export default function SignInPage() {
             </Button>
           </form>
           <p className="text-sm text-muted-foreground">
-            Need an account? <Link href="/register" className="text-primary underline">Register</Link>
+            Need an account? <Link href="/register" className="font-medium text-primary underline underline-offset-4">Register</Link>
           </p>
         </CardContent>
         </Card>

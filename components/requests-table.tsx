@@ -63,7 +63,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
         />
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium cursor-pointer hover:bg-slate-50/80 transition-colors"
+            className="h-10 rounded-lg border border-border bg-input px-2.5 text-xs font-medium text-foreground shadow-xs transition-colors hover:bg-slate-50/80 focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
@@ -76,7 +76,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
           </select>
 
           <select
-            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium cursor-pointer hover:bg-slate-50/80 transition-colors"
+            className="h-10 rounded-lg border border-border bg-input px-2.5 text-xs font-medium text-foreground shadow-xs transition-colors hover:bg-slate-50/80 focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -89,7 +89,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
           </select>
 
           <select
-            className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium cursor-pointer hover:bg-slate-50/80 transition-colors"
+            className="h-10 rounded-lg border border-border bg-input px-2.5 text-xs font-medium text-foreground shadow-xs transition-colors hover:bg-slate-50/80 focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-ring/50"
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
           >
@@ -130,18 +130,18 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
           ) : (
             filtered.map((r) => (
               <TableRow key={r.id}>
-                <TableCell>
-                  <Link href={`/requests/${r.id}`} className="font-mono text-xs font-bold text-primary hover:underline">
+                <TableCell className="max-w-28">
+                  <Link href={`/requests/${r.id}`} className="block truncate font-mono text-xs font-bold text-primary hover:underline" title={getCaseReference(r.id)}>
                     {getCaseReference(r.id)}
                   </Link>
                 </TableCell>
-                <TableCell className="font-medium">
-                  <Link href={`/customers/${r.customer.id}`} className="hover:underline">
+                <TableCell className="max-w-36 font-medium">
+                  <Link href={`/customers/${r.customer.id}`} className="block truncate hover:underline" title={r.customer?.name ?? undefined}>
                     {r.customer?.name ?? "—"}
                   </Link>
                 </TableCell>
-                <TableCell className="font-medium text-foreground">
-                  <Link href={`/requests/${r.id}`} className="hover:underline">
+                <TableCell className="max-w-52 font-medium text-foreground">
+                  <Link href={`/requests/${r.id}`} className="block truncate hover:underline" title={r.title}>
                     {r.title}
                   </Link>
                 </TableCell>
@@ -158,7 +158,7 @@ export function RequestsTable({ requests }: { requests: RequestWithIncludes[] })
                     {formatCaseLabel(r.priority)}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-xs text-muted-foreground">{r.assignedUser?.name ?? "Unassigned"}</TableCell>
+                <TableCell className="max-w-28 text-xs text-muted-foreground"><span className="block truncate" title={r.assignedUser?.name ?? "Unassigned"}>{r.assignedUser?.name ?? "Unassigned"}</span></TableCell>
                 <TableCell className="text-xs text-muted-foreground">{new Date(r.updatedAt).toLocaleDateString()}</TableCell>
               </TableRow>
             ))

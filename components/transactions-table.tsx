@@ -39,7 +39,7 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           className="min-w-0 flex-1"
           placeholder="Search ledger by description, subscriber name, or billing type"
@@ -56,7 +56,7 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
           <TableRow>
             <TableHead>Subscriber Account</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead>Amount</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
             <TableHead>Billing Type</TableHead>
             <TableHead>Record Date</TableHead>
             <TableHead>Processed by</TableHead>
@@ -83,8 +83,8 @@ export function TransactionsTable({ transactions }: { transactions: TransactionW
                       <span className="text-muted-foreground">Unassigned</span>
                     )}
                   </TableCell>
-                  <TableCell className="font-medium text-foreground">{t.description}</TableCell>
-                  <TableCell className={`font-semibold ${isCredit ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}>
+                  <TableCell className="max-w-64 font-medium text-foreground"><span className="block truncate" title={t.description}>{t.description}</span></TableCell>
+                  <TableCell className={`text-right font-semibold tabular-nums ${isCredit ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}>
                     {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(t.amount)}
                   </TableCell>
                   <TableCell>

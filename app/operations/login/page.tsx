@@ -89,7 +89,7 @@ export default function OperationsLoginPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="name@superdimm.local"
-                  className="bg-slate-900 border-slate-700 text-white placeholder:text-slate-500"
+                  className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400 focus-visible:border-primary"
                   required
                 />
               </div>
@@ -100,7 +100,8 @@ export default function OperationsLoginPage() {
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="bg-slate-900 border-slate-700 text-white"
+                  placeholder="••••••••"
+                  className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400 focus-visible:border-primary"
                   required
                 />
               </div>
@@ -110,7 +111,7 @@ export default function OperationsLoginPage() {
               </Button>
             </form>
             <div className="border-t border-slate-800/80 pt-4 text-center">
-              <Link href="/" className="text-xs text-slate-400 hover:text-slate-200 transition underline">
+              <Link href="/" className="inline-flex rounded-md px-2 py-1 text-xs font-medium text-slate-300 transition hover:bg-slate-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                 ← Return to Customer Portal
               </Link>
             </div>

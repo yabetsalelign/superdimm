@@ -51,7 +51,7 @@ export default async function LandingPage() {
 
         {/* Customer-First Hero Section */}
         <section className="py-14 text-center max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.13em] text-primary">
             <span>📡 Telecom Subscriber Services</span>
           </div>
 
@@ -64,7 +64,7 @@ export default async function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Button asChild size="lg" className="w-full sm:w-auto px-8 font-semibold shadow-md">
+            <Button asChild size="lg" className="w-full px-8 font-semibold sm:w-auto">
               <Link href="/portal">Access Customer Portal</Link>
             </Button>
             {!session ? (
@@ -77,9 +77,9 @@ export default async function LandingPage() {
 
         {/* Customer Feature Cards */}
         <section className="grid gap-5 md:grid-cols-3 max-w-4xl mx-auto w-full py-6">
-          <Card className="border border-border/80 bg-card/60 backdrop-blur-sm shadow-sm hover:border-primary/40 transition">
-            <CardHeader className="pb-2">
-              <span className="text-2xl mb-2 block">⚡</span>
+          <Card className="border border-border/80 bg-card/80 backdrop-blur-sm shadow-xs transition hover:border-primary/40">
+            <CardHeader className="gap-2 pb-2">
+              <span className="mb-1 flex size-9 items-center justify-center rounded-lg bg-primary/10 text-lg">⚡</span>
               <CardTitle className="text-base font-semibold">Report Problems Fast</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
                 Log network outages, latency spikes, or SIM provisioning requests directly to our technical queue.
@@ -87,9 +87,9 @@ export default async function LandingPage() {
             </CardHeader>
           </Card>
 
-          <Card className="border border-border/80 bg-card/60 backdrop-blur-sm shadow-sm hover:border-primary/40 transition">
-            <CardHeader className="pb-2">
-              <span className="text-2xl mb-2 block">📊</span>
+          <Card className="border border-border/80 bg-card/80 backdrop-blur-sm shadow-xs transition hover:border-primary/40">
+            <CardHeader className="gap-2 pb-2">
+              <span className="mb-1 flex size-9 items-center justify-center rounded-lg bg-primary/10 text-lg">📊</span>
               <CardTitle className="text-base font-semibold">Live Case Stepper</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
                 Track every stage of your support ticket from initial intake to technician resolution in real-time.
@@ -97,9 +97,9 @@ export default async function LandingPage() {
             </CardHeader>
           </Card>
 
-          <Card className="border border-border/80 bg-card/60 backdrop-blur-sm shadow-sm hover:border-primary/40 transition">
-            <CardHeader className="pb-2">
-              <span className="text-2xl mb-2 block">💳</span>
+          <Card className="border border-border/80 bg-card/80 backdrop-blur-sm shadow-xs transition hover:border-primary/40">
+            <CardHeader className="gap-2 pb-2">
+              <span className="mb-1 flex size-9 items-center justify-center rounded-lg bg-primary/10 text-lg">💳</span>
               <CardTitle className="text-base font-semibold">Billing & Statements</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
                 View verified service charges, SLA credits, and paid invoices in a customer-safe account summary.

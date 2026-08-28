@@ -27,7 +27,7 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           className="min-w-0 flex-1"
           placeholder="Search subscribers by name, email, phone, plan, or account ID"
@@ -60,22 +60,22 @@ export function CustomersTable({ customers }: { customers: Customer[] }) {
           ) : (
             filtered.map((customer) => (
               <TableRow key={customer.id}>
-                <TableCell className="font-medium">
-                  <Link href={`/customers/${customer.id}`} className="font-semibold text-primary hover:underline">
+                <TableCell className="max-w-44 font-medium">
+                  <Link href={`/customers/${customer.id}`} className="block truncate font-semibold text-primary hover:underline" title={customer.name}>
                     {customer.name}
                   </Link>
                 </TableCell>
-                <TableCell className="text-xs font-medium text-foreground">
-                  {customer.plan || "Standard Telecom Service"}
+                <TableCell className="max-w-44 text-xs font-medium text-foreground">
+                  <span className="block truncate" title={customer.plan ?? "Standard Service"}>{customer.plan || "Standard Service"}</span>
                 </TableCell>
                 <TableCell>
                   <Badge variant={customer.status === "active" ? "success" : "warning"}>
                     {formatCaseLabel(customer.status)}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-xs text-muted-foreground">{customer.email ?? "—"}</TableCell>
+                <TableCell className="max-w-52 text-xs text-muted-foreground"><span className="block truncate" title={customer.email ?? undefined}>{customer.email ?? "—"}</span></TableCell>
                 <TableCell className="text-xs font-mono text-muted-foreground">{customer.phone ?? "—"}</TableCell>
-                <TableCell className="text-xs font-mono text-muted-foreground">{customer.id}</TableCell>
+                <TableCell className="max-w-32 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-mono text-muted-foreground" title={customer.id}>{customer.id}</TableCell>
               </TableRow>
             ))
           )}
