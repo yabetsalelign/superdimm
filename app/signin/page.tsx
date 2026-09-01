@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,17 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    getSession().then((session) => {
+      if (session?.user) {
+        const role = (session.user as { role?: string }).role ?? "user";
+        window.location.replace(
+          ["admin", "manager", "support"].includes(role) ? "/dashboard" : "/portal"
+        );
+      }
+    });
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,10 +43,8 @@ export default function SignInPage() {
       return;
     }
 
-    // Keep the customer entry point isolated: staff accounts return to Operations.
-    const sessionResponse = await fetch("/api/auth/session");
-    const session = sessionResponse.ok ? await sessionResponse.json() : null;
-    const role = session?.user?.role ?? "user";
+    const session = await getSession();
+    const role = (session?.user as { role?: string } | undefined)?.role ?? "user";
     window.location.href = ["admin", "manager", "support"].includes(role) ? "/dashboard" : "/portal";
   }
 

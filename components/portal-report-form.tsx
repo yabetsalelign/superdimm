@@ -109,6 +109,64 @@ const CATEGORY_INFO: Record<
   },
 };
 
+// Concise helper descriptions for branch options
+const OPTION_DESCRIPTIONS: Record<string, string> = {
+  // Network
+  "Mobile Data": "Cellular 4G/5G data connections on mobile devices.",
+  "Home Internet": "Fixed wireless, broadband, or enterprise fiber connections.",
+  "Data Not Working": "Cannot access internet or establish a data connection.",
+  "Poor Signal": "Low cellular bars, dropped calls, or weak coverage.",
+  "Internet Not Working": "Total service interruption or no internet access.",
+  "Fiber / Broadband": "Physical line faults, installation delays, or throughput issues.",
+  // SIM
+  "SIM Activation": "New SIM setup, SIM replacements, or eSIM profiles.",
+  "SIM Problem": "Physical SIM damage, device recognition errors, or PIN/PUK lock.",
+  "New SIM": "First-time setup or newly issued SIM card issues.",
+  "SIM Status": "SIM card is lost, blocked, or not detected in device.",
+  // Billing
+  "Invoice & Charges": "Clarification on monthly statements, unknown line items, or fees.",
+  "Payment & Refund": "Failed transactions, processing errors, or refund requests.",
+  "Charge Issue": "Unexpected line item, rate change, or billing discrepancy.",
+  "Payment Status": "Payment posted but not reflected, or payment method declined.",
+  // Plan
+  "Modify Plan": "Upgrade speed, downgrade package, or adjust add-on services.",
+  "Plan Information": "Inquire about data allowances, contract terms, or renewal dates.",
+  "Change Service": "Request changes to your active service package.",
+  "Plan Details": "Review package features, quotas, or service terms.",
+  // Service Activation
+  "New Service": "Scheduled line setup, on-site technician visits, or service start.",
+  "Hardware": "Modems, routers, optical network terminals (ONT), or accessories.",
+  "Setup Issue": "Pending installation or activation failure.",
+  "Equipment": "Faulty hardware, exchange requests, or device configuration.",
+  // Account
+  "Login Issue": "Forgotten passwords, two-factor auth, or portal sign-in errors.",
+  "Account Problem": "Authorized contact changes, profile information, or security settings.",
+  "Access Problem": "Locked credentials or inability to authenticate.",
+  "Profile Issue": "Update contact details, company information, or email.",
+  // Other
+  "General": "Inquiries or support requests not covered in other sections.",
+  "Inquiry": "General support assistance from our customer care team.",
+};
+
+function getContextualHint(category?: string): string {
+  switch (category) {
+    case "network":
+      return "e.g., When did the disruption start? Is it affecting a specific location or device?";
+    case "sim":
+      return "e.g., Provide your phone number or ICCID / eSIM order reference if available.";
+    case "billing":
+      return "e.g., Include any invoice number, charge date, or discrepancy amount.";
+    case "plan":
+      return "e.g., Which plan tier or add-on would you like to switch to or inquire about?";
+    case "provisioning":
+      return "e.g., Mention your scheduled installation date or equipment model.";
+    case "account":
+      return "e.g., Provide the email or account username you are trying to access.";
+    default:
+      return "e.g., Describe what happened and any troubleshooting steps you have already tried.";
+  }
+}
+
 export function PortalReportForm() {
   const router = useRouter();
   const [path, setPath] = useState<DecisionPath>([]);
@@ -117,20 +175,42 @@ export function PortalReportForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reference, setReference] = useState<string | null>(null);
 
+  function getNodeAtCurrentPath(): { node: any; isLeaf: boolean } {
+    if (path.length === 0) {
+      return { node: DECISION_TREE, isLeaf: false };
+    }
+
+    let current: any = DECISION_TREE;
+
+    for (let i = 0; i < path.length; i++) {
+      const segment = path[i];
+      if (!current) return { node: null, isLeaf: false };
+
+      if (Array.isArray(current)) {
+        if (current.includes(segment) && i === path.length - 1) {
+          return { node: null, isLeaf: true };
+        }
+        return { node: null, isLeaf: false };
+      }
+
+      current = current[segment];
+    }
+
+    if (current === undefined || current === null) {
+      return { node: null, isLeaf: false };
+    }
+
+    return { node: current, isLeaf: false };
+  }
+
   // Get current level options
   function getCurrentOptions(): string[] {
-    if (path.length === 0) {
-      return caseCategories as unknown as string[];
+    const { node, isLeaf } = getNodeAtCurrentPath();
+    if (isLeaf || !node) return [];
+    if (Array.isArray(node)) {
+      return node;
     }
-
-    let current: Record<string, any> = DECISION_TREE;
-
-    for (const key of path) {
-      current = current[key];
-      if (!current) return [];
-    }
-
-    return Object.keys(current);
+    return Object.keys(node);
   }
 
   function selectOption(option: string) {
@@ -145,18 +225,13 @@ export function PortalReportForm() {
     }
   }
 
+  function jumpToStep(depth: number) {
+    setPath(path.slice(0, depth));
+    setError(null);
+  }
+
   function canSubmit(): boolean {
-    // Can submit when at a leaf (deepest level)
-    if (path.length === 0) return false;
-
-    let current: Record<string, any> = DECISION_TREE;
-    for (const key of path) {
-      current = current[key];
-      if (!current) return false;
-    }
-
-    // If current has no sub-options (is a leaf), can submit
-    return !Array.isArray(current) && Object.keys(current).length === 0;
+    return getNodeAtCurrentPath().isLeaf;
   }
 
   // Check if this is a follow-up issue
@@ -178,7 +253,6 @@ export function PortalReportForm() {
     // Use the last selection in path as the specific issue
     return `${categoryLabel} - ${path[path.length - 1]}`;
   }
-
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -228,10 +302,10 @@ export function PortalReportForm() {
   if (reference) {
     return (
       <div className="w-full max-w-2xl mx-auto px-4 py-8">
-        <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
+        <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center shadow-xs">
           <div className="flex justify-center mb-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-              <span className="text-2xl">✓</span>
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+              <span className="text-2xl font-bold">✓</span>
             </div>
           </div>
 
@@ -239,11 +313,11 @@ export function PortalReportForm() {
             Support Request Submitted
           </h2>
 
-          <p className="mt-4 text-sm text-emerald-900">
+          <p className="mt-4 text-sm text-emerald-900 leading-relaxed">
             Your service request has been successfully submitted to our operations team.
           </p>
 
-          <div className="mt-6 rounded-lg border border-emerald-300 bg-white px-4 py-3">
+          <div className="mt-6 rounded-lg border border-emerald-300 bg-white px-4 py-3 shadow-xs">
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
               Your Reference Number
             </p>
@@ -256,7 +330,7 @@ export function PortalReportForm() {
           </div>
 
           <div className="mt-6 space-y-3">
-            <p className="text-sm text-emerald-900">
+            <p className="text-sm text-emerald-900 leading-relaxed">
               Our support team will begin investigating your issue and will update you on progress. You can track this request anytime by returning to your account.
             </p>
           </div>
@@ -266,11 +340,15 @@ export function PortalReportForm() {
               type="button"
               variant="outline"
               onClick={() => router.push("/portal")}
-              className="border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100"
+              className="border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100 font-medium"
             >
               Return to Portal
             </Button>
-            <Button type="button" onClick={reset} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button
+              type="button"
+              onClick={reset}
+              className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+            >
               Report Another Problem
             </Button>
           </div>
@@ -284,152 +362,257 @@ export function PortalReportForm() {
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-8">
-      {/* Breadcrumb/Path Display */}
+      {/* Interactive Breadcrumb Navigation */}
       {path.length > 0 && (
-        <div className="mb-6 flex flex-wrap items-center gap-2">
+        <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1.5 text-xs">
           <button
             type="button"
             onClick={() => setPath([])}
-            className="text-sm font-medium text-primary hover:underline"
+            className="font-medium text-primary hover:underline transition-colors"
           >
             Start Over
           </button>
-          {path.map((segment, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <span className="text-muted-foreground">/</span>
-              <span className="text-sm font-medium text-foreground">{segment}</span>
-            </div>
-          ))}
-        </div>
+          {path.map((segment, idx) => {
+            const isLast = idx === path.length - 1;
+            const label = idx === 0 && CATEGORY_INFO[segment] ? CATEGORY_INFO[segment].label : segment;
+
+            return (
+              <div key={idx} className="flex items-center gap-1.5">
+                <span className="text-muted-foreground/60 font-semibold">/</span>
+                {isLast ? (
+                  <span className="font-semibold text-foreground">{label}</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => jumpToStep(idx + 1)}
+                    className="font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                  >
+                    {label}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </nav>
       )}
 
-      {/* Main content */}
-      <div className="space-y-6">
-        {/* Heading based on depth */}
+      {/* Main card container */}
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8 space-y-6">
+        {/* Headings */}
         <div>
           {path.length === 0 && (
             <>
-              <h2 className="text-2xl font-bold tracking-tight">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Step 1 of 4 · Service Category
+              </p>
+              <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                 What type of problem are you experiencing?
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Select the category that best matches your issue.
+                Select the category that best matches your issue to route your request to the right team.
               </p>
             </>
           )}
           {path.length === 1 && (
             <>
-              <h2 className="text-2xl font-bold tracking-tight">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Step 2 of 4 · Specific Problem
+              </p>
+              <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                 {CATEGORY_INFO[path[0]]?.label || path[0]}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                What specific problem are you experiencing?
+                Select the specific service area having trouble.
               </p>
             </>
           )}
-          {path.length > 1 && !isAtLeaf && (
+          {path.length === 2 && !isAtLeaf && (
             <>
-              <h2 className="text-2xl font-bold tracking-tight">
-                Tell us more about your {path[path.length - 1].toLowerCase()}
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Step 3 of 4 · Narrow Issue
+              </p>
+              <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                {path[path.length - 1]}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Help us narrow down the issue.
+                Help us narrow down what symptom you are observing.
+              </p>
+            </>
+          )}
+          {path.length === 3 && !isAtLeaf && (
+            <>
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Step 4 of 4 · Specific Reportable Issue
+              </p>
+              <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                {path[path.length - 1]}
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Choose the statement that best describes the exact issue.
               </p>
             </>
           )}
           {isAtLeaf && (
             <>
-              <h2 className="text-2xl font-bold tracking-tight">
-                Additional Details (Optional)
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600">
+                Final Step · Review & Submit
+              </p>
+              <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                Review Your Support Request
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Let us know anything else that might help us resolve this faster.
+                Confirm your issue selection and add optional details before submitting.
               </p>
             </>
           )}
         </div>
 
-        {/* Options grid (only show if not at leaf) */}
+        {/* Options grid (when not at leaf) */}
         {!isAtLeaf && (
-          <div className="grid gap-3">
-            {options.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => selectOption(option)}
-                className="rounded-lg border-2 border-border p-4 text-left transition-all hover:border-primary hover:bg-muted/40"
-              >
-                <p className="font-semibold text-foreground">{option}</p>
-              </button>
-            ))}
+          <div className="grid gap-3 sm:grid-cols-1">
+            {options.map((option) => {
+              const catInfo = path.length === 0 ? CATEGORY_INFO[option] : null;
+              const title = catInfo ? catInfo.label : option;
+              const desc = catInfo ? catInfo.description : OPTION_DESCRIPTIONS[option];
+
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => selectOption(option)}
+                  className="group flex items-center justify-between gap-4 rounded-xl border border-border/80 bg-background p-4 text-left shadow-2xs transition-all duration-150 hover:border-primary hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5">
+                      {catInfo?.icon && <span className="text-xl shrink-0">{catInfo.icon}</span>}
+                      <p className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                        {title}
+                      </p>
+                    </div>
+                    {desc && (
+                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed pl-0.5">
+                        {desc}
+                      </p>
+                    )}
+                  </div>
+                  {/* Subtle Right Chevron Affordance */}
+                  <svg
+                    className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-primary"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              );
+            })}
           </div>
         )}
 
-        {/* Final details form (only show at leaf) */}
+        {/* Final Report Form (when at leaf) */}
         {isAtLeaf && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="rounded-lg border border-border bg-muted/20 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Your Issue
-              </p>
-              <p className="mt-2 font-semibold text-foreground">{generateTitle()}</p>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Generated Issue Summary with Edit/Change Action */}
+            <div className="flex items-start justify-between gap-4 rounded-xl border border-border/80 bg-muted/20 p-4">
+              <div className="space-y-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Identified Problem
+                </p>
+                <p className="font-semibold text-foreground text-base leading-snug">
+                  {generateTitle()}
+                </p>
+                <p className="text-xs text-muted-foreground font-mono truncate pt-0.5">
+                  {path.map((segment, idx) => (idx === 0 && CATEGORY_INFO[segment] ? CATEGORY_INFO[segment].label : segment)).join(" → ")}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={goBack}
+                className="shrink-0 text-xs font-medium"
+              >
+                Change
+              </Button>
             </div>
 
+            {/* Optional Additional Details */}
             <div className="space-y-2">
+              <label htmlFor="additional-details" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Additional Details (Optional)
+              </label>
               <textarea
-                placeholder="Tell us anything else that might help..."
+                id="additional-details"
+                placeholder="Tell us anything else that might help our technicians resolve this faster..."
                 value={additionalDetails}
                 onChange={(e) => setAdditionalDetails(e.target.value)}
+                maxLength={1000}
                 rows={4}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed"
               />
-              <p className="text-xs text-muted-foreground">
-                Optional. Anything else you'd like our team to know?
-              </p>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span className="truncate max-w-[80%]">{getContextualHint(path[0])}</span>
+                <span className={additionalDetails.length >= 900 ? "text-amber-600 font-medium" : ""}>
+                  {additionalDetails.length} / 1000
+                </span>
+              </div>
             </div>
 
             {isFollowUp && (
-              <div className="rounded bg-amber-50 p-3">
+              <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5">
                 <p className="text-xs font-semibold text-amber-950">
                   ⚠️ Follow-up Issue Detected
                 </p>
-                <p className="mt-1 text-xs text-amber-900">
-                  We noticed this might be related to a previous issue. Our team will check the case history.
+                <p className="mt-1 text-xs text-amber-900 leading-relaxed">
+                  We noticed this might be related to a previous ticket. Our operations queue will link this with your case history.
                 </p>
               </div>
             )}
 
             {error && (
-              <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
-                <p className="text-sm text-destructive">{error}</p>
+              <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-3.5">
+                <p className="text-sm font-medium text-destructive">{error}</p>
               </div>
             )}
 
-            <div className="flex justify-between gap-3 border-t border-border pt-6">
-              <Button type="button" variant="outline" onClick={goBack}>
-                Back
+            <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-6">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={goBack}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                ← Back
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-emerald-600 hover:bg-emerald-700 font-semibold px-6 shadow-sm"
               >
-                {isSubmitting ? "Submitting..." : "Submit Report"}
+                {isSubmitting ? "Submitting Request..." : "Submit Support Request"}
               </Button>
             </div>
           </form>
         )}
 
-        {/* Navigation buttons (only show if not at leaf) */}
+        {/* Secondary Navigation (when not at leaf) */}
         {!isAtLeaf && (
-          <div className="flex justify-between gap-3 border-t border-border pt-6">
+          <div className="flex items-center justify-between border-t border-border/60 pt-5">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
+              size="sm"
               onClick={path.length === 0 ? () => router.push("/portal") : goBack}
+              className="text-xs text-muted-foreground hover:text-foreground"
             >
-              {path.length === 0 ? "Cancel" : "Back"}
+              ← {path.length === 0 ? "Cancel" : "Back"}
             </Button>
+            <span className="text-xs font-medium text-muted-foreground">
+              Step {path.length + 1} of 4
+            </span>
           </div>
         )}
       </div>

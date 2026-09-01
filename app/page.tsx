@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { isStaffRole } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { LandingActions } from "@/components/landing-actions";
@@ -15,6 +16,10 @@ export const metadata: Metadata = {
 
 export default async function LandingPage() {
   const session = await getServerSession(authOptions);
+  const isStaff = isStaffRole((session?.user as { role?: string } | undefined)?.role);
+  const authDestination = isStaff ? "/dashboard" : "/portal";
+  const authButtonLabel = isStaff ? "Open Dashboard" : "Open Portal";
+  const heroButtonLabel = isStaff ? "Access Operations Dashboard" : "Access Customer Portal";
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background px-4 py-8 sm:px-6 lg:px-8">
@@ -32,7 +37,7 @@ export default async function LandingPage() {
                   Signed in as <strong>{session.user?.name ?? session.user?.email}</strong>
                 </span>
                 <Button asChild size="sm">
-                  <Link href="/portal">Open Portal</Link>
+                  <Link href={authDestination}>{authButtonLabel}</Link>
                 </Button>
                 <LandingActions />
               </div>
@@ -65,7 +70,7 @@ export default async function LandingPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Button asChild size="lg" className="w-full px-8 font-semibold sm:w-auto">
-              <Link href="/portal">Access Customer Portal</Link>
+              <Link href={authDestination}>{heroButtonLabel}</Link>
             </Button>
             {!session ? (
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
