@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CustomerRequestPrototype } from "@/components/customer-request-prototype";
+import { Button } from "@/components/ui/button";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -96,7 +96,9 @@ export default async function PortalPage() {
           <p className="text-xs sm:text-sm text-muted-foreground">Create an official ticket. Our engineering queue will pick it up automatically.</p>
         </div>
         <div className="shrink-0">
-          <CustomerRequestPrototype />
+          <Button asChild className="font-medium">
+            <Link href="/portal/report">Report a problem</Link>
+          </Button>
         </div>
       </section>
 
